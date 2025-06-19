@@ -1,0 +1,475 @@
+{% extends "base.html" %}
+
+{% block title %}課程管理 - {{ super() }}{% endblock %}
+
+{% block extra_css %}
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<style>
+:root {
+    --primary-color: #000000;
+    --secondary-color: #6e6e73;
+    --border-color: #d2d2d7;
+    --background-color: #f5f5f7;
+    --success-color: #34c759;
+    --card-shadow: 0 2px 20px rgba(0, 0, 0, 0.08);
+    --transition: all 0.2s ease;
+}
+
+body {
+    background-color: var(--background-color);
+    font-family: 'Noto Sans TC', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* 標題區域樣式 */
+.page-header {
+    background: white;
+    border-radius: 16px;
+    padding: 32px;
+    margin-bottom: 24px;
+    box-shadow: var(--card-shadow);
+}
+
+.page-title {
+    font-size: 32px;
+    font-weight: 600;
+    color: var(--primary-color);
+    margin: 0;
+    line-height: 1.1;
+}
+
+.page-subtitle {
+    font-size: 17px;
+    color: var(--secondary-color);
+    margin: 8px 0 0 0;
+}
+
+/* 卡片樣式 */
+.card {
+    border: none;
+    border-radius: 16px;
+    box-shadow: var(--card-shadow);
+    transition: var(--transition);
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12);
+}
+
+/* 搜尋區域樣式 */
+.search-section {
+    background: white;
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 24px;
+}
+
+.input-group {
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.input-group-text {
+    background-color: white;
+    border-right: none;
+}
+
+.form-control {
+    border-left: none;
+    padding: 8px 16px;
+    height: 40px;
+    font-size: 14px;
+}
+
+.form-control:focus {
+    box-shadow: none;
+    border-color: var(--border-color);
+}
+
+/* 按鈕樣式 */
+.btn {
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    border-radius: 6px;
+    transition: var(--transition);
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-primary:hover {
+    background-color: #333;
+    border-color: #333;
+    transform: translateY(-1px);
+}
+
+.btn-outline-primary {
+    color: var(--primary-color);
+    border-color: var(--border-color);
+}
+
+.btn-outline-primary:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+/* 表格樣式 */
+.table {
+    margin: 0;
+}
+
+.table th {
+    font-weight: 500;
+    color: var(--secondary-color);
+    border-bottom: 1px solid var(--border-color);
+    padding: 12px 16px;
+}
+
+.table td {
+    padding: 16px;
+    vertical-align: middle;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(0, 0, 0, 0.02);
+}
+
+/* 進度條樣式 */
+.progress {
+    height: 6px;
+    background-color: #f5f5f7;
+    border-radius: 3px;
+}
+
+.progress-bar {
+    background-color: var(--success-color);
+}
+
+/* 狀態徽章 */
+.badge {
+    padding: 6px 12px;
+    border-radius: 12px;
+    font-weight: 500;
+    font-size: 12px;
+}
+
+.badge.bg-success {
+    background-color: rgba(52, 199, 89, 0.1) !important;
+    color: var(--success-color);
+}
+
+.badge.bg-secondary {
+    background-color: rgba(110, 110, 115, 0.1) !important;
+    color: var(--secondary-color);
+}
+
+/* 分頁控制 */
+.pagination {
+    gap: 4px;
+}
+
+.page-link {
+    border: none;
+    padding: 8px 12px;
+    color: var(--primary-color);
+    border-radius: 6px;
+    font-weight: 500;
+}
+
+.page-item.active .page-link {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.page-link:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+    color: var(--primary-color);
+}
+
+/* 日期選擇器自定義樣式 */
+.flatpickr-calendar {
+    border-radius: 12px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12);
+    border: none;
+}
+
+.flatpickr-day.selected {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+/* 操作按鈕組 */
+.btn-group .btn {
+    padding: 6px 12px;
+    font-size: 13px;
+}
+
+/* 響應式調整 */
+@media (max-width: 768px) {
+    .page-header {
+        padding: 24px;
+    }
+    
+    .page-title {
+        font-size: 24px;
+    }
+    
+    .table-responsive {
+        margin: 0 -16px;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- 頁面標題區塊 -->
+    <div class="page-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="apple-style-title animate-title">課程管理</h1>
+                <p class="apple-style-subtitle animate-subtitle">管理您的所有課程資訊</p>
+            </div>
+            <a href="{{ url_for('courses.create_course') }}" 
+                class="btn btn-primary d-flex align-items-center">
+                <i class="bi bi-plus-circle me-2"></i>
+                新增課程
+            </a>    
+        </div>
+    </div>
+
+    <!-- 搜尋區塊 -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <!-- 搜尋表單 -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <form method="get" class="row g-3">
+                        <!-- 關鍵字搜尋 -->
+                        <div class="col-md-12">
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-search"></i></span>
+                                <input type="text" name="search" class="form-control" 
+                                    placeholder="搜尋課程名稱或開課單位..." value="{{ search }}">
+                                    <button type="submit" name="search_type" value="keyword" 
+                                    class="btn btn-outline-primary">
+                                    <i class="bi bi-search"></i>
+                                    </button>
+                            </div>
+                        </div>
+
+                        <!-- 報名時間搜尋 -->
+                        <div class="col-md-6">
+                            <label class="form-label">報名時間搜尋</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control date-picker" name="signup_start"
+                                    placeholder="報名開始日期" value="{{ signup_start }}">
+                                <span class="input-group-text">至</span>
+                                <input type="text" class="form-control date-picker" name="signup_end"
+                                    placeholder="報名結束日期" value="{{ signup_end }}">
+                                <button type="submit" name="search_type" value="signup" 
+                                        class="btn btn-outline-primary">
+                                    <i class="bi bi-search"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- 開課時間搜尋 -->
+                        <div class="col-md-6">
+                            <label class="form-label">開課時間搜尋</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control date-picker" name="course_start"
+                                    placeholder="開課日期" value="{{ course_start }}">
+                                <span class="input-group-text">至</span>
+                                <input type="text" class="form-control date-picker" name="course_end"
+                                    placeholder="結束日期" value="{{ course_end }}">
+                                <button type="submit" name="search_type" value="course" 
+                                        class="btn btn-outline-primary">
+                                    <i class="bi bi-search"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- 重置按鈕 -->
+                        <div class="col-12 text-end">
+                            <a href="{{ url_for('courses.manage_courses') }}" class="btn btn-secondary">
+                                <i class="bi bi-arrow-counterclockwise me-1"></i>重置
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 課程列表 -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>
+                                        <a href="#" onclick="updateSort('course_number')" class="text-dark text-decoration-none">
+                                            課程編號
+                                            <i class="bi bi-sort-{% if sort_by == 'course_number' %}{% if order == 'asc' %}down{% else %}up{% endif %}{% else %}down{% endif %}"></i>
+                                        </a>
+                                    </th>
+                                    <th>
+                                        <a href="#" onclick="updateSort('title')" class="text-dark text-decoration-none">
+                                            課程名稱
+                                            <i class="bi bi-sort-{% if sort_by == 'title' %}{% if order == 'asc' %}down{% else %}up{% endif %}{% else %}down{% endif %}"></i>
+                                        </a>
+                                    </th>
+                            
+                                    <th class="text-center">
+                                        <a href="#" onclick="updateSort('enrollment_status')" class="text-dark text-decoration-none">
+                                            報名狀態
+                                            <i class="bi bi-sort-{% if sort_by == 'enrollment_status' %}{% if order == 'asc' %}down{% else %}up{% endif %}{% else %}down{% endif %}"></i>
+                                        </a>
+                                    </th>
+                                    <th class="text-center">
+                                        <a href="#" onclick="updateSort('current_attendance')" class="text-dark text-decoration-none">
+                                            報名人數
+                                            <i class="bi bi-sort-{% if sort_by == 'current_attendance' %}{% if order == 'asc' %}down{% else %}up{% endif %}{% else %}down{% endif %}"></i>
+                                        </a>
+                                    </th>
+                                    <th class="text-center">
+                                        <a href="#" onclick="updateSort('signup_start')" class="text-dark text-decoration-none">
+                                            報名時間
+                                            <i class="bi bi-sort-{% if sort_by == 'signup_start' %}{% if order == 'asc' %}down{% else %}up{% endif %}{% else %}down{% endif %}"></i>
+                                        </a>
+                                    </th>
+                                    <th class="text-center">
+                                        <a href="#" onclick="updateSort('course_start')" class="text-dark text-decoration-none">
+                                            開課時間
+                                            <i class="bi bi-sort-{% if sort_by == 'course_start' %}{% if order == 'asc' %}down{% else %}up{% endif %}{% else %}down{% endif %}"></i>
+                                        </a>
+                                    </th>
+                                    <th class="text-center">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for course in courses %}
+                                <tr>
+                                    <td>{{ course.course_number }}</td>
+                                    <td>{{ course.title }}</td>
+                                    <td class="text-center">
+                                        {% if course.can_enroll() %}
+                                            <span class="badge bg-success">報名中</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">未開放</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-center">
+                                        <div style="width: 150px;" class="mx-auto">
+                                            <div class="d-flex align-items-center">
+                                                <div class="progress flex-grow-1 me-2" style="height: 10px;">
+                                                    <div class="progress-bar" role="progressbar" 
+                                                         style="width: {{ (course.current_attendance / course.max_attendance) * 100 }}%">
+                                                    </div>
+                                                </div>
+                                                <small>{{ course.current_attendance }}/{{ course.max_attendance }}</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="text-center">
+                                        {{ course.signup_start.strftime('%Y/%m/%d') }} -<br>
+                                        {{ course.signup_deadline.strftime('%Y/%m/%d') }}
+                                    </td>
+                                    <td class="text-center">
+                                        {{ course.course_start.strftime('%Y/%m/%d') }} -<br>
+                                        {{ course.course_end.strftime('%Y/%m/%d') }}
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="btn-group">
+                                            <a href="{{ url_for('courses.edit_course', course_number=course.course_number) }}"
+                                               class="btn btn-outline-primary btn-sm">
+                                                <i class="bi bi-pencil-square me-1"></i>編輯
+                                            </a>
+                                            <a href="{{ url_for('courses.view_course', course_number=course.course_number) }}"
+                                               class="btn btn-outline-success btn-sm">
+                                                <i class="bi bi-eye me-1"></i>查看
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 分頁控制 -->
+    {% if pagination.pages > 1 %}
+    <div class="row mt-4">
+        <div class="col-12 d-flex justify-content-center">
+            <nav aria-label="Page navigation">
+                <ul class="pagination">
+                    {% for page in pagination.iter_pages() %}
+                        {% if page %}
+                            <li class="page-item {% if page == pagination.page %}active{% endif %}">
+                                <a class="page-link" href="{{ url_for('courses.manage_courses', 
+                                    page=page, 
+                                    search=search,
+                                    sort=sort_by,
+                                    order=order,
+                                    signup_start_from=signup_start_from,
+                                    signup_start_to=signup_start_to,
+                                    course_start_from=course_start_from,
+                                    course_start_to=course_start_to
+                                ) }}">{{ page }}</a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled"><span class="page-link">...</span></li>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+            </nav>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/zh-tw.js"></script>
+<script>
+    flatpickr(".date-picker", {
+        locale: "zh_tw",
+        dateFormat: "Y-m-d",
+        allowInput: true
+    });
+
+    function updateSort(column) {
+        const params = new URLSearchParams(window.location.search);
+        const currentSort = params.get('sort');
+        const currentOrder = params.get('order') || 'asc';
+        
+        if (currentSort === column) {
+            params.set('order', currentOrder === 'asc' ? 'desc' : 'asc');
+        } else {
+            params.set('sort', column);
+            params.set('order', 'asc');
+        }
+        
+        params.set('page', '1');
+        window.location.search = params.toString();
+    }
+</script>
+{% endblock %}
+
+{{ super() }}
+{% endblock %}

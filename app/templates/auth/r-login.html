@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登入 - 教師研習系統</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --accent-color: #3498db;
+            --text-color: #2c3e50;
+            --background-color: #ecf0f1;
+        }
+
+        body {
+            font-family: "Segoe UI", "PingFang TC", sans-serif;
+            background: linear-gradient(135deg, #fff 0%, var(--background-color) 100%);
+            color: var(--text-color);
+            min-height: 100vh;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 400px;
+            height: 400px;
+            background: linear-gradient(135deg, var(--accent-color) 0%, #2980b9 100%);
+            border-radius: 50%;
+            transform: translate(30%, -30%);
+            opacity: 0.1;
+            z-index: -1;
+        }
+
+        body::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 300px;
+            height: 300px;
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            border-radius: 50%;
+            transform: translate(-30%, 30%);
+            opacity: 0.1;
+            z-index: -1;
+        }
+
+        .login-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 24px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .login-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, var(--accent-color), #2ecc71);
+        }
+
+        .system-title {
+            font-size: 2.2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 2rem;
+        }
+
+        .form-control {
+            border: 2px solid #eee;
+            border-radius: 12px;
+            padding: 1rem;
+            font-size: 1rem;
+            transition: all 0.3s;
+            background-color: #f8f9fa;
+        }
+
+        .form-control:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 4px rgba(52, 152, 219, 0.1);
+            background-color: #fff;
+        }
+
+        .form-label {
+            font-weight: 500;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .btn-submit {
+            background: linear-gradient(135deg, var(--accent-color), #2ecc71);
+            border: none;
+            border-radius: 12px;
+            padding: 1rem;
+            color: white;
+            font-weight: 500;
+            letter-spacing: 1px;
+            transition: all 0.3s;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(52, 152, 219, 0.2);
+        }
+
+        .register-link {
+            color: var(--accent-color);
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .register-link:hover {
+            color: #2980b9;
+            text-decoration: none;
+        }
+
+        .form-check-input:checked {
+            background-color: var(--accent-color);
+            border-color: var(--accent-color);
+        }
+
+            /* 提示訊息 */
+        .alert {
+            margin: 0;
+            padding: 12px 0;
+            border: none;
+            border-radius: 0;
+            font-size: 14px;
+        }
+
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .alert-danger {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <div class="container d-flex align-items-center justify-content-center min-vh-100 py-5">
+        <div class="login-container p-5" style="max-width: 480px; width: 100%;">
+            <div class="position-absolute" style="top: 20px; left: 20px; z-index: 100;">
+                <a href="{{ url_for('main.index') }}" class="text-decoration-none" style="color: var(--text-color);">
+                    <div class="d-flex align-items-center gap-2 back-button">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-arrow-left-circle" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd" d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8zm15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-4.5-.5a.5.5 0 0 1 0 1H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5H11.5z"/>
+                        </svg>
+                        
+                    </div>
+                </a>
+            </div>
+            <div class="text-center">
+                <h1 class="system-title">教師研習系統</h1>
+            </div>
+            
+            <form method="POST">
+                {{ form.hidden_tag() }}
+                <div class="mb-4">
+                    {{ form.account.label(class="form-label") }}
+                    {{ form.account(class="form-control", placeholder="請輸入您的帳號") }}
+                </div>
+                
+                <div class="mb-4">
+                    {{ form.password.label(class="form-label") }}
+                    {{ form.password(class="form-control", placeholder="請輸入您的密碼") }}
+                </div>
+                
+                <div class="mb-4 form-check">
+                    {{ form.remember_me(class="form-check-input") }}
+                    {{ form.remember_me.label(class="form-check-label") }}
+                </div>
+
+                {{ form.submit(class="btn btn-submit w-100 mb-4") }}
+            </form>
+
+            <div class="text-center">
+                <p class="mb-0">
+                    還沒有帳號？
+                    <a href="{{ url_for('auth.register') }}" class="register-link">立即註冊</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show">
+                    <div class="container d-flex justify-content-between align-items-center">
+                        <div>{{ message }}</div>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+
+</body>
+</html>

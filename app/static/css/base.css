@@ -1,0 +1,155 @@
+:root {
+    --apple-font: 'Noto Sans TC', -apple-system, BlinkMacSystemFont, sans-serif;
+    --apple-black: #1d1d1f;
+    --apple-gray: #86868b;
+    --apple-green: #248e3c;
+}
+
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    font-family: var(--apple-font);
+    -webkit-font-smoothing: antialiased;
+    background-color: #fbfbfd;
+}
+
+main {
+    flex: 1;
+}
+
+/* 導航欄樣式 */
+.navbar {
+    background-color: rgba(255, 255, 255, 0.8) !important;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    padding: 0.8rem 0;
+}
+
+.navbar-brand img {
+    transition: transform 0.2s ease;
+}
+
+.navbar-brand:hover img {
+    transform: scale(1.05);
+}
+
+.nav-link {
+    color: var(--apple-black) !important;
+    font-size: 0.95rem;
+    font-weight: 400;
+    padding: 0.5rem 1rem !important;
+    transition: color 0.2s ease;
+}
+
+.nav-link:hover {
+    color: var(--apple-green) !important;
+}
+
+.nav-link.active {
+    color: var(--apple-green) !important;
+    font-weight: 500;
+}
+
+/* 下拉選單樣式 */
+.dropdown-menu {
+    border-radius: 12px;
+    border: none;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1);
+    padding: 0.5rem;
+}
+
+.dropdown-item {
+    border-radius: 8px;
+    padding: 0.6rem 1rem;
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
+}
+
+.dropdown-item:hover {
+    background-color: rgba(0, 0, 0, 0.04);
+}
+
+/* 按鈕樣式 */
+.btn-outline-success {
+    border-color: var(--apple-green);
+    color: var(--apple-green);
+    border-radius: 20px;
+    padding: 0.4rem 1.2rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.btn-outline-success:hover {
+    background-color: var(--apple-green);
+    border-color: var(--apple-green);
+    transform: translateY(-1px);
+}
+
+/* 用戶選單樣式 */
+.dropdown-toggle {
+    font-weight: 500;
+    color: var(--apple-green) !important;
+}
+
+/* Alert 樣式 */
+.alert {
+    border: none;
+    border-radius: 12px;
+    margin: 1rem auto;
+    max-width: 90%;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* 頁腳樣式 */
+.footer {
+    background-color: #f5f5f7 !important;
+    padding: 1.5rem 0;
+    font-size: 0.9rem;
+    color: var(--apple-gray);
+}
+
+/* 響應式調整 */
+@media (max-width: 768px) {
+    .navbar-collapse {
+        background-color: rgba(255, 255, 255, 0.98);
+        padding: 1rem;
+        border-radius: 12px;
+        margin-top: 1rem;
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1);
+    }
+}
+
+/* 平滑過渡效果 */
+* {
+    transition: all 0.2s ease-out;
+}
+
+/* 漢堡選單按鈕美化 */
+.navbar-toggler {
+    border: none;
+    padding: 0.5rem;
+}
+
+.navbar-toggler:focus {
+    box-shadow: none;
+}
+
+/* 滾動條美化 */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}

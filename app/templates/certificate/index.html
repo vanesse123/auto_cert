@@ -1,0 +1,249 @@
+{% extends "base.html" %}
+
+{% block title %}證書管理 - {{ super() }}{% endblock %}
+
+{% block extra_css %}
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+    --primary-color: #000000;
+    --secondary-color: #6e6e73;
+    --border-color: #d2d2d7;
+    --background-color: #f5f5f7;
+    --success-color: #34c759;
+    --warning-color: #ffd60a;
+    --card-shadow: 0 2px 20px rgba(0, 0, 0, 0.08);
+    --transition: all 0.2s ease;
+}
+
+body {
+    background-color: var(--background-color);
+    font-family: 'Noto Sans TC', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.page-header {
+    background: white;
+    border-radius: 16px;
+    padding: 32px;
+    margin-bottom: 24px;
+    box-shadow: var(--card-shadow);
+}
+
+.page-title {
+    font-size: 32px;
+    font-weight: 600;
+    color: var(--primary-color);
+    margin: 0;
+    line-height: 1.1;
+}
+
+.page-subtitle {
+    font-size: 17px;
+    color: var(--secondary-color);
+    margin: 8px 0 0 0;
+}
+
+.course-card {
+    background: white;
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 24px;
+    box-shadow: var(--card-shadow);
+    transition: var(--transition);
+}
+
+.course-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12);
+}
+
+.course-title {
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 16px;
+}
+
+.status-badge {
+    padding: 6px 12px;
+    border-radius: 12px;
+    font-weight: 500;
+    font-size: 14px;
+}
+
+.status-badge.completed {
+    background-color: rgba(52, 199, 89, 0.1);
+    color: var(--success-color);
+}
+
+.status-badge.partial {
+    background-color: rgba(255, 214, 10, 0.1);
+    color: var(--warning-color);
+}
+
+.status-badge.pending {
+    background-color: rgba(110, 110, 115, 0.1);
+    color: var(--secondary-color);
+}
+
+.stat-box {
+    text-align: center;
+    padding: 16px;
+    background: var(--background-color);
+    border-radius: 12px;
+}
+
+.stat-value {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+.stat-label {
+    font-size: 14px;
+    color: var(--secondary-color);
+}
+
+.btn-manage {
+    padding: 8px 24px;
+    background-color: var(--primary-color);
+    color: white;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: var(--transition);
+}
+
+.btn-manage:hover {
+    background-color: #333;
+    color: white;
+    transform: translateY(-1px);
+}
+
+@media (max-width: 768px) {
+    .page-header {
+        padding: 24px;
+    }
+    
+    .course-card {
+        padding: 20px;
+    }
+    
+    .stat-box {
+        margin-bottom: 12px;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+
+  
+<div class="container py-4">
+    <div class="page-header">
+        <h1 class="page-title">課程證書管理</h1>
+        <p class="page-subtitle">管理已完成課程的結業證書</p>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>
+                                        <a href="#" onclick="updateSort('course_number')" class="text-dark text-decoration-none">
+                                            課程編號
+                                            <i class="bi bi-sort-{% if sort_by == 'course_number' %}{% if order == 'asc' %}down{% else %}up{% endif %}{% else %}down{% endif %}"></i>
+                                        </a>
+                                    </th>
+                                    <th>
+                                        <a href="#" onclick="updateSort('title')" class="text-dark text-decoration-none">
+                                            課程名稱
+                                            <i class="bi bi-sort-{% if sort_by == 'title' %}{% if order == 'asc' %}down{% else %}up{% endif %}{% else %}down{% endif %}"></i>
+                                        </a>
+                                    </th>
+                                    <th class="text-center">
+                                        <a href="#" onclick="updateSort('completion_status')" class="text-dark text-decoration-none">
+                                            發證狀態
+                                            <i class="bi bi-sort-{% if sort_by == 'completion_status' %}{% if order == 'asc' %}down{% else %}up{% endif %}{% else %}down{% endif %}"></i>
+                                        </a>
+                                    </th>
+                                    <th class="text-center">出席統計</th>
+                                    <th class="text-center">
+                                        <a href="#" onclick="updateSort('certified_count')" class="text-dark text-decoration-none">
+                                            發證數量
+                                            <i class="bi bi-sort-{% if sort_by == 'certified_count' %}{% if order == 'asc' %}down{% else %}up{% endif %}{% else %}down{% endif %}"></i>
+                                        </a>
+                                    </th>
+                                    <th class="text-center">課程期間</th>
+                                    <th class="text-center">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for course in courses %}
+                                <tr>
+                                    <td>{{ course.course_number }}</td>
+                                    <td>
+                                        {{ course.title }}
+                                        <div class="text-secondary small">{{ course.hours }}小時</div>
+                                    </td>
+                                    <td class="text-center">
+                                        {% if course_stats[course.course_number].certified == course_stats[course.course_number].total_students %}
+                                            <span class="badge bg-success">已完成發放</span>
+                                        {% elif course_stats[course.course_number].certified > 0 %}
+                                            <span class="badge bg-warning text-dark">部分發放</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">未發放</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-center">
+                                        <div style="width: 150px;" class="mx-auto">
+                                            <div class="d-flex align-items-center">
+                                                <div class="progress flex-grow-1 me-2" style="height: 10px;">
+                                                    <div class="progress-bar bg-success" role="progressbar" 
+                                                         style="width: {{ ((course_stats[course.course_number].signed_in / course_stats[course.course_number].total_students) * 100)if course_stats[course.course_number].total_students>0 else 0}}%">
+                                                    </div>
+                                                </div>
+                                                <small>{{ course_stats[course.course_number].signed_in }}/{{ course_stats[course.course_number].total_students }}</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="text-center">
+                                        <div style="width: 150px;" class="mx-auto">
+                                            <div class="d-flex align-items-center">
+                                                <div class="progress flex-grow-1 me-2" style="height: 10px;">
+                                                    <div class="progress-bar bg-success" role="progressbar" 
+                                                         style="width: {{ ((course_stats[course.course_number].certified / course_stats[course.course_number].total_students) * 100)if course_stats[course.course_number].total_students>0 else 0}}%">
+                                                    </div>
+                                                </div>
+                                                <small>{{ course_stats[course.course_number].certified }}/{{ course_stats[course.course_number].total_students }}</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="text-center">
+                                        {{ course.course_start.strftime('%Y/%m/%d') }} -<br>
+                                        {{ course.course_end.strftime('%Y/%m/%d') }}
+                                    </td>
+                                    <td class="text-center">
+                                        <a href="{{ url_for('certificate.manage_certificates', course_number=course.course_number) }}"
+                                            class="btn btn-outline-primary btn-sm">
+                                            <i class="bi bi-award me-1"></i>管理證書
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+    {% if not courses %}
+    <div class="text-center py-5">
+        <p class="text-secondary">目前沒有可管理的課程</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

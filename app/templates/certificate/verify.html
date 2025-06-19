@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+
+{% block title %}證書驗證 - {{ super() }}{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <h1 class="text-center mb-4">證書驗證系統</h1>
+    
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <form id="verifyForm" method='post' class="mb-4">
+                {{ form.csrf_token }}
+                <div class="input-group">
+                    {{ form.cert_code(class="form-control", placeholder="請輸入證書編號") }}
+                    <button type="submit" class="btn btn-primary">驗證</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- 驗證結果互動視窗 -->
+<div class="modal fade" id="resultModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fs-4"><strong>驗證結果</strong></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <!-- 成功訊息 -->
+                <div id="successResult" style="display: none;">
+                    <div class="alert alert-success mb-4 d-flex align-items-center justify-content-center">
+                        <i class="bi bi-check-circle-fill me-2"></i> <strong>證書驗證成功！</strong>
+                    </div>
+                    <div class="card">
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item py-3">
+                                <div class="row">
+                                    <div class="col-4">
+                                        <strong>持有者：</strong>
+                                    </div>
+                                    <div class="col-8">
+                                        <span id="ownerText"></span>
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="list-group-item py-3">
+                                <div class="row">
+                                    <div class="col-4">
+                                        <strong>發證單位：</strong>
+                                    </div>
+                                    <div class="col-8">
+                                        <span id="issuerText"></span>
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="list-group-item py-3">
+                                <div class="row">
+                                    <div class="col-4">
+                                        <strong>發證日期：</strong>
+                                    </div>
+                                    <div class="col-8">
+                                        <span id="dateText"></span>
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="list-group-item py-3">
+                                <div class="row">
+                                    <div class="col-4">
+                                        <strong>課程名稱：</strong>
+                                    </div>
+                                    <div class="col-8">
+                                        <span id="courseText"></span>
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <!-- 錯誤訊息 -->
+                <div id="errorResult" style="display: none;">
+                    <div class="alert alert-danger mb-4 d-flex align-items-center justify-content-center">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        <span id="errorText"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+document.getElementById('verifyForm').onsubmit = async function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    const response = await fetch('/certificates/verify', {
+        method: 'POST',
+        body: formData,
+    });
+    const result = await response.json();
+    
+    const modal = new bootstrap.Modal(document.getElementById('resultModal'));
+    
+    if (result.status === 'success') {
+        document.getElementById('successResult').style.display = 'block';
+        document.getElementById('errorResult').style.display = 'none';
+        
+        // 更新資訊
+        document.getElementById('ownerText').textContent = result.data.owner;
+        document.getElementById('issuerText').textContent = result.data.issuer;
+        document.getElementById('dateText').textContent = result.data.issue_date;
+        document.getElementById('courseText').textContent = result.data.course_name;
+    } else {
+        document.getElementById('successResult').style.display = 'none';
+        document.getElementById('errorResult').style.display = 'block';
+        document.getElementById('errorText').textContent = result.message;
+    }
+    
+    modal.show();
+};
+</script>
+{% endblock %}

@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>證書管理 - {{ course.title }}</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100">
+    <!-- 提示訊息容器 -->
+    <div id="alertContainer" class="fixed top-4 right-4 z-50"></div>
+
+    <div class="container mx-auto px-4 py-6">
+        <!-- 課程資訊 -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h1 class="text-2xl font-bold mb-2">{{ course.title }}</h1>
+                    <div class="text-gray-600">
+                        <p>課程期間：{{ course.course_start.strftime('%Y/%m/%d') }} - {{ course.course_end.strftime('%Y/%m/%d') }}</p>
+                        <p>課程時數：{{ course.hours }}小時</p>
+                    </div>
+                </div>
+                <div class="grid grid-cols-3 gap-6">
+                    <div class="text-center">
+                        <div class="text-3xl font-bold text-blue-600">{{ stats.total_students }}</div>
+                        <div class="text-sm text-gray-600">總報名人數</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-3xl font-bold text-green-600">{{ stats.attendance_rate }}%</div>
+                        <div class="text-sm text-gray-600">出席率</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-3xl font-bold text-yellow-600">{{ stats.certified }}</div>
+                        <div class="text-sm text-gray-600">已發證書</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 篩選工具列 
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+            <form id="filterForm" method="GET" class="flex flex-wrap gap-4 justify-between items-center">
+                <div class="flex gap-4 flex-1">
+                    <select name="sign_in" class="p-2 border rounded-lg">
+                        <option value="all" {% if filters.sign_in == 'all' %}selected{% endif %}>全部簽到狀態</option>
+                        <option value="complete" {% if filters.sign_in == 'complete' %}selected{% endif %}>已簽到</option>
+                        <option value="incomplete" {% if filters.sign_in == 'incomplete' %}selected{% endif %}>未簽到</option>
+                    </select>
+                    <select name="cert_status" class="p-2 border rounded-lg">
+                        <option value="all" {% if filters.cert_status == 'all' %}selected{% endif %}>全部證書狀態</option>
+                        <option value="issued" {% if filters.cert_status == 'issued' %}selected{% endif %}>已發放</option>
+                        <option value="pending" {% if filters.cert_status == 'pending' %}selected{% endif %}>待發放</option>
+                    </select>
+                    <input type="text" 
+                           name="search" 
+                           placeholder="搜尋學員..." 
+                           value="{{ filters.search }}"
+                           class="p-2 border rounded-lg flex-1">
+                </div>
+                -->
+                <div class="flex gap-4">
+                    <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
+                        搜尋
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- 學員列表 -->
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <form id="issueForm" method="POST" action="{{ url_for('certificate.issue_certificates') }}">
+                {{ form.csrf_token }}
+                <div class="hidden">{{ form.csrf_token.value }}</div>
+                <input type="hidden" name="course_number" value="{{ course.course_number }}">
+                <table class="w-full">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="p-3 text-left">
+                                <input type="checkbox" id="selectAll" class="form-checkbox">
+                            </th>
+                            <th class="p-3 text-left">員工編號</th>
+                            <th class="p-3 text-left">姓名</th>
+                            <th class="p-3 text-center">簽到狀態</th>
+                            <th class="p-3 text-center">簽到時間</th>
+                            <th class="p-3 text-center">證書狀態</th>
+                            <th class="p-3 text-center">證書編號</th>
+                            <th class="p-3 text-center">發放日期</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for student in students %}
+                        <tr class="border-t">
+                            <td class="p-3">
+                                <input type="checkbox" 
+                                       name="employee_numbers" 
+                                       value="{{ student.employee_number }}"
+                                       class="form-checkbox student-checkbox"
+                                       {% if student.certification_code or not student.sign_in_state %}disabled{% endif %}>
+                            </td>
+                            <td class="p-3">{{ student.employee_number }}</td>
+                            <td class="p-3">{{ student.full_name }}</td>
+                            <td class="p-3 text-center">
+                                <span class="px-2 py-1 rounded {% if student.sign_in_state %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">
+                                    {{ '已簽到' if student.sign_in_state else '未簽到' }}
+                                </span>
+                            </td>
+                            <td class="p-3 text-center">
+                                {{ student.sign_in_time.strftime('%Y/%m/%d %H:%M') if student.sign_in_time else '-' }}
+                            </td>
+                            <td class="p-3 text-center">
+                                <span class="px-2 py-1 rounded {% if student.certification_code %}bg-blue-100 text-blue-800{% else %}bg-yellow-100 text-yellow-800{% endif %}">
+                                    {{ '已發放' if student.certification_code else ('待發放' if student.sign_in_state else '無法發放') }}
+                                </span>
+                            </td>
+                            <td class="p-3 text-center">{{ student.certification_code or '-' }}</td>
+                            <td class="p-3 text-center">
+                                {{ student.issue_date.strftime('%Y/%m/%d') if student.issue_date else '-' }}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+                <div class="mt-4 flex justify-between items-center">
+                    <div id="selectedCount" class="text-gray-600">已選擇 0 位學員</div>
+                    {% if students %}
+                    <button type="submit" class="px-6 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600">
+                        批量發放證書
+                    </button>
+                    {% endif %}
+                </div>
+            </form>
+
+            {% if not students %}
+            <div class="text-center py-8">
+                <p class="text-gray-500">沒有符合條件的學員</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show">
+                    <div class="container d-flex justify-content-between align-items-center">
+                        <div>{{ message }}</div>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <!-- 引入 JavaScript -->
+    <script src="{{ url_for('static', filename='js/certificateManager.js') }}"></script>
+    <style> 
+    /* 提示訊息 */
+        .alert {
+            margin: 0;
+            padding: 12px 0;
+            border: none;
+            border-radius: 0;
+            font-size: 14px;
+        }
+
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .alert-danger {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        </style>
+</body>
+</html>

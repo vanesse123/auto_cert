@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - Sky Blue Theme</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+   
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC&display=swap');
+
+        /* 背景設計 */
+        body {
+            background: linear-gradient(to bottom, hsl(186, 97%, 72%), #ffffff); /* 淺藍漸層 */
+            color: #d2d1d1;
+            font-family: 'Noto Sans TC', sans-serif;
+            
+        }
+        form{
+            font-size: smaller;
+            font-weight: 600;
+        }
+
+        /* 卡片樣式 */
+        .card {
+            background-color: #ffffffc5;
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            
+            
+        }
+
+        /* 按鈕樣式 */
+        .btn-primary {
+            background-color: #0cdaf0; /* 天空藍 */
+            border: none;
+            transition: background-color 0.3s ease;
+        }
+
+
+        /* 圓角欄位 */
+        .form-control {
+            border-radius: 30px;
+            background-color: rgba(255, 255, 255, 0.8);
+            
+        }
+
+        .form-control:focus {
+            box-shadow: none;
+            background-color: rgba(255, 255, 255, 1);
+        }
+
+        /* 角色選擇 */
+        .form-check-label, a {
+            color: #000000;
+        }
+
+        a {
+            color: #0cdaf0;
+        }
+
+        a:hover {
+            color: #0b5ed7;
+        }
+
+        .form-check-label svg.custom-male-color {
+            fill: #0c67f0; /* 使用您喜歡的顏色 */
+        }
+        .form-check-label svg.custom-female-color {
+            fill: #fa3a9a; /* 使用您喜歡的顏色 */
+        }
+
+    </style>
+    <script>
+        function toggleFields() {
+            const role = document.querySelector('input[name="role"]:checked').value;
+            const agencyFields = document.getElementById('agencyFields');
+            agencyFields.style.display = (role === 'agency') ? 'block' : 'none';
+        }
+
+
+
+    </script>
+</head>
+<body>
+    <div class="container d-flex align-items-center justify-content-center min-vh-100">
+        <div class="card p-5" style="max-width: 500px; width: 100%;">
+            <h5 class="text-center mb-4" style="font-weight:bolder">使用者註冊</h3>
+            <form>
+                <div class="d-flex flex-column flex-sm-row ">
+                    <!-- 姓名 -->
+                    <div class="mb-3 input-group  input-group-sm">
+                            <span class="input-group-text">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-square" viewBox="0 0 16 16">
+                                    <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0"/>
+                                    <path d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zm12 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1v-1c0-1-1-4-6-4s-6 3-6 4v1a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1z"/>
+                                </svg>
+                            </span>
+                            <input type="text" class="form-control" id="full_name" placeholder="姓名">
+                    </div> 
+
+                    <!-- 身分證 -->
+                    <div class="mb-3 input-group input-group-sm ">
+                        <span class="input-group-text">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-vcard" viewBox="0 0 16 16">
+                                <path d="M5 8a2 2 0 1 0 0-4 2 2 0 0 0 0 4m4-2.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 0 1h-4a.5.5 0 0 1-.5-.5M9 8a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 0 1h-4A.5.5 0 0 1 9 8m1 2.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5"/>
+                                <path d="M2 2a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2zM1 4a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H8.96q.04-.245.04-.5C9 10.567 7.21 9 5 9c-2.086 0-3.8 1.398-3.984 3.181A1 1 0 0 1 1 12z"/>
+                            </svg>
+                        </span>
+                        <input type="text" class="form-control" id="cardid" placeholder="身分證">
+                    </div>
+                </div>
+
+                <!-- 職號 -->
+                <div class="mb-3 input-group input-group-sm ">
+                    <span class="input-group-text">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-card-text" viewBox="0 0 16 16">
+                            <path d="M14.5 3a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-.5.5h-13a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5zm-13-1A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2z"/>
+                            <path d="M3 5.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5M3 8a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9A.5.5 0 0 1 3 8m0 2.5a.5.5 0 0 1 .5-.5h6a.5.5 0 0 1 0 1h-6a.5.5 0 0 1-.5-.5"/>
+                            </svg>
+                    </span>
+                    <input type="text" class="form-control" id="employee_number" placeholder="職號">
+                </div>
+
+                <!-- 帳號 -->
+                <div class="mb-3 input-group input-group-sm ">
+                    <span class="input-group-text">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person" viewBox="0 0 16 16">
+                            <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6m2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0m4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4m-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10s-3.516.68-4.168 1.332c-.678.678-.83 1.418-.832 1.664z"/>
+                        </svg>
+                    </span>
+                    <input type="text" class="form-control" id="account" placeholder="帳號">
+                </div> 
+
+                <!-- 密碼 -->
+                <div class="mb-3 input-group input-group-sm ">
+                    <span class="input-group-text">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-key" viewBox="0 0 16 16">
+                            <path d="M0 8a4 4 0 0 1 7.465-2H14a.5.5 0 0 1 .354.146l1.5 1.5a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0L13 9.207l-.646.647a.5.5 0 0 1-.708 0L11 9.207l-.646.647a.5.5 0 0 1-.708 0L9 9.207l-.646.647A.5.5 0 0 1 8 10h-.535A4 4 0 0 1 0 8m4-3a3 3 0 1 0 2.712 4.285A.5.5 0 0 1 7.163 9h.63l.853-.854a.5.5 0 0 1 .708 0l.646.647.646-.647a.5.5 0 0 1 .708 0l.646.647.646-.647a.5.5 0 0 1 .708 0l.646.647.793-.793-1-1h-6.63a.5.5 0 0 1-.451-.285A3 3 0 0 0 4 5"/>
+                            <path d="M4 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0"/>
+                        </svg>
+                    </span>
+                    <input type="password" class="form-control" id="Password" placeholder="密碼">
+                </div>
+
+                <!-- 再次確認密碼 -->
+                <div class="mb-3 input-group input-group-sm ">
+                    <span class="input-group-text">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-key" viewBox="0 0 16 16">
+                            <path d="M0 8a4 4 0 0 1 7.465-2H14a.5.5 0 0 1 .354.146l1.5 1.5a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0L13 9.207l-.646.647a.5.5 0 0 1-.708 0L11 9.207l-.646.647a.5.5 0 0 1-.708 0L9 9.207l-.646.647A.5.5 0 0 1 8 10h-.535A4 4 0 0 1 0 8m4-3a3 3 0 1 0 2.712 4.285A.5.5 0 0 1 7.163 9h.63l.853-.854a.5.5 0 0 1 .708 0l.646.647.646-.647a.5.5 0 0 1 .708 0l.646.647.646-.647a.5.5 0 0 1 .708 0l.646.647.793-.793-1-1h-6.63a.5.5 0 0 1-.451-.285A3 3 0 0 0 4 5"/>
+                            <path d="M4 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0"/>
+                        </svg>
+                    </span>
+                    <input type="password" class="form-control" id="Password2" placeholder="再次確認密碼">
+                </div>
+
+                <!-- 電子郵件 -->
+                <div class="mb-3 input-group input-group-sm">
+                    <span class="input-group-text">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-envelope" viewBox="0 0 16 16">
+                            <path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v.217l7 4.2 7-4.2V4a1 1 0 0 0-1-1zm13 2.383-4.708 2.825L15 11.105zm-.034 6.876-5.64-3.471L8 9.583l-1.326-.795-5.64 3.47A1 1 0 0 0 2 13h12a1 1 0 0 0 .966-.741M1 11.105l4.708-2.897L1 5.383z"/>
+                          </svg>
+                    </span>
+                    <input type="email" class="form-control" id="email" placeholder="電子郵件">
+                </div>
+
+                <!-- 行動電話 -->
+                <div class="mb-3 input-group input-group-sm ">
+                    <span class="input-group-text">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-telephone" viewBox="0 0 16 16">
+                            <path d="M3.654 1.328a.678.678 0 0 0-1.015-.063L1.605 2.3c-.483.484-.661 1.169-.45 1.77a17.6 17.6 0 0 0 4.168 6.608 17.6 17.6 0 0 0 6.608 4.168c.601.211 1.286.033 1.77-.45l1.034-1.034a.678.678 0 0 0-.063-1.015l-2.307-1.794a.68.68 0 0 0-.58-.122l-2.19.547a1.75 1.75 0 0 1-1.657-.459L5.482 8.062a1.75 1.75 0 0 1-.46-1.657l.548-2.19a.68.68 0 0 0-.122-.58zM1.884.511a1.745 1.745 0 0 1 2.612.163L6.29 2.98c.329.423.445.974.315 1.494l-.547 2.19a.68.68 0 0 0 .178.643l2.457 2.457a.68.68 0 0 0 .644.178l2.189-.547a1.75 1.75 0 0 1 1.494.315l2.306 1.794c.829.645.905 1.87.163 2.611l-1.034 1.034c-.74.74-1.846 1.065-2.877.702a18.6 18.6 0 0 1-7.01-4.42 18.6 18.6 0 0 1-4.42-7.009c-.362-1.03-.037-2.137.703-2.877z"/>
+                        </svg>
+                    </span>
+                    <input type="tel" id="phone" class="form-control"  placeholder="行動電話"  pattern="[0-9]{10}">
+                </div>
+
+                <div class="d-flex flex-wrap gap-3 ">
+                    <p class="mb-3 fw-bold">性別：</p>
+                    <div class="form-check">
+                        
+                        <input class="form-check-input" type="radio" id="sex" name="role" value="男" >
+                        <label class="form-check-label" for="userRole">男
+                            <svg xmlns="http://www.w3.org/2000/svg" class="custom-male-color" width="13" height="13" fill="currentColor" class="bi bi-gender-male" viewBox="0 0 16 16">
+                                <path fill-rule="evenodd" d="M9.5 2a.5.5 0 0 1 0-1h5a.5.5 0 0 1 .5.5v5a.5.5 0 0 1-1 0V2.707L9.871 6.836a5 5 0 1 1-.707-.707L13.293 2zM6 6a4 4 0 1 0 0 8 4 4 0 0 0 0-8"/>
+                            </svg>
+                        </label>
+
+
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" id="sex" name="role" value="女">
+                        <label class="form-check-label" for="agencyRole">女
+                            <svg xmlns="http://www.w3.org/2000/svg" class="custom-female-color" width="13" height="13" fill="primary" class="bi bi-gender-female" viewBox="0 0 16 16">
+                                <path fill-rule="evenodd" d="M8 1a4 4 0 1 0 0 8 4 4 0 0 0 0-8M3 5a5 5 0 1 1 5.5 4.975V12h2a.5.5 0 0 1 0 1h-2v2.5a.5.5 0 0 1-1 0V13h-2a.5.5 0 0 1 0-1h2V9.975A5 5 0 0 1 3 5"/>
+                            </svg>   
+                        </label>
+                    </div>
+                </div>
+
+                <!-- 選擇角色 -->
+                <div class="mb-3">
+                    <p class="mb-3 fw-bold">角色：</p>
+                    <div class="d-flex flex-column">
+                        <div class="d-flex flex-wrap gap-4 mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" id="userRole" name="role" value="user" onclick="toggleFields()" checked>
+                                <label class="form-check-label" for="userRole">教師</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" id="agencyRole" name="role" value="agency" onclick="toggleFields()">
+                                <label class="form-check-label" for="agencyRole">管理者</label>
+                            </div>
+                        </div>
+                        
+                        <!-- 單位選擇 -->
+                        <div id="agencyFields" style="display: none;">
+                            <p class="mb-2 fw-bold">單位：</p>
+                            <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center gap-2 gap-md-3">   
+                                <select class="form-select form-select-sm" aria-label="單位選擇1">
+                                    <option selected>請選擇單位</option>
+                                    <option value="1">單位一</option>
+                                    <option value="2">單位二</option>
+                                    <option value="3">單位三</option>
+                                    <option value="4">單位四</option>
+                                </select>
+                                <select class="form-select form-select-sm" aria-label="單位選擇2">
+                                    <option selected>請選擇單位</option>
+                                    <option value="1">單位一</option>
+                                    <option value="2">單位二</option>
+                                    <option value="3">單位三</option>
+                                    <option value="4">單位四</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 註冊按鈕 -->
+                <button type="submit" class="btn btn-primary w-100">註冊</button>
+
+            </form>
+
+            <div class="text-center mt-3">
+                <p>已有帳號? <a href="login.html" class="text-decoration-none">登入</a></p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

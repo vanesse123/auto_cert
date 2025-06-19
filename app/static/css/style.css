@@ -1,0 +1,59 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC&display=swap');
+
+body {
+    background: linear-gradient(to bottom, hsl(186, 97%, 72%), #ffffff);
+    color: #d2d1d1;
+    font-family: 'Noto Sans TC', sans-serif;
+}
+form {
+    font-size: smaller;
+    font-weight: 600;
+}
+.card {
+    background-color: #ffffffc5;
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    padding: 2rem;
+}
+.btn-primary {
+    background-color: #0cdaf0;
+    border: none;
+    transition: background-color 0.3s ease;
+}
+.form-control, .form-select {
+    border-radius: 30px;
+    background-color: rgba(255, 255, 255, 0.8);
+}
+.form-control:focus, .form-select:focus {
+    box-shadow: none;
+    background-color: rgba(255, 255, 255, 1);
+}
+.form-check-label, a {
+    color: #000000;
+}
+a {
+    color: #0cdaf0;
+}
+a:hover {
+    color: #0b5ed7;
+}
+.form-check-label svg.custom-male-color {
+    fill: #0c67f0;
+}
+.form-check-label svg.custom-female-color {
+    fill: #fa3a9a;
+}
+.input-group-text {
+    border-top-left-radius: 30px;
+    border-bottom-left-radius: 30px;
+    background-color: #f8f9fa;
+}
+
+input.valid{
+    border:1px solid green;
+  }
+input.invalid{
+    border:1px solid red;
+  }
+  

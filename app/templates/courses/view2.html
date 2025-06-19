@@ -1,0 +1,698 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="course-container">
+    {% if course.can_enroll() %}
+        <div class="status-bar success">
+            <div class="status-content">
+                <i class="bi bi-clock"></i>
+                <span>報名截止時間：{{ course.signup_deadline.strftime('%Y/%m/%d %H:%M') }}</span>
+                <span class="status-highlight">剩餘名額：{{ course.available_slots }}位</span>
+            </div>
+        </div>
+    {% elif course.is_upcoming(now) %}
+        <div class="status-bar warning">
+            <div class="status-content">
+                <i class="bi bi-calendar"></i>
+                <span>尚未開放報名，開放時間：{{ course.signup_start.strftime('%Y/%m/%d %H:%M') }}</span>
+            </div>
+        </div>
+    {% elif course.is_closed(now) %}
+        <div class="status-bar neutral">
+            <div class="status-content">
+                <i class="bi bi-x-circle"></i>
+                <span>報名已截止</span>
+            </div>
+        </div>
+    {% endif %}
+
+    <div class="course-content">
+        <div class="course-header">
+            <div class="title-section">
+                <h1>{{ course.title }}</h1>
+                {% if can_manage %}
+                    <div class="action-buttons">
+                        <button class="btn-outline" onclick="window.location.href='{{ url_for('courses.edit_course', course_number=course.course_number) }}'">
+                            <i class="bi bi-pencil"></i>編輯
+                        </button>
+                        <button class="btn-outline danger" data-bs-toggle="modal" data-bs-target="#deleteCourseModal{{ course.course_number }}">
+                            <i class="bi bi-trash"></i>刪除
+                        </button>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="course-body">
+            <div class="main-content">
+                <section class="course-section">
+                    <h2>課程簡介</h2>
+                    <p>{{ course.intro }}</p>
+                </section>
+
+                <section class="course-section">
+                    <h2>課程說明</h2>
+                    <div class="course-description">
+                        {{ course.description | safe }}
+                    </div>
+                </section>
+            </div>
+
+            <aside class="side-content">
+                <div class="info-card">
+                    <section class="card-section">
+                        <h3>課程資訊</h3>
+                        <ul class="info-list">
+                            <li>
+                                <i class="bi bi-building"></i>
+                                <span>開課單位</span>
+                                <strong>{{ course.department.full_name }}</strong>
+                            </li>
+                            <li>
+                                <i class="bi bi-clock"></i>
+                                <span>課程時數</span>
+                                <strong>{{ course.hours }} 小時</strong>
+                            </li>
+                            <li>
+                                <i class="bi bi-geo-alt"></i>
+                                <span>上課地點</span>
+                                <strong>{{ course.location }}</strong>
+                            </li>
+                            <li>
+                                <i class="bi bi-people"></i>
+                                <span>報名狀況</span>
+                                <strong>{{ course.current_attendance }}/{{ course.max_attendance }}</strong>
+                            </li>
+                        </ul>
+                    </section>
+
+                    <section class="card-section">
+                        <h3>時間資訊</h3>
+                        <ul class="info-list">
+                            <li class="full">
+                                <i class="bi bi-calendar"></i>
+                                <span>報名期間</span>
+                                <strong>
+                                    {{ course.signup_start.strftime('%Y/%m/%d %H:%M') }} ~<br>
+                                    {{ course.signup_deadline.strftime('%Y/%m/%d %H:%M') }}
+                                </strong>
+                            </li>
+                            <li class="full">
+                                <i class="bi bi-calendar-check"></i>
+                                <span>課程期間</span>
+                                <strong>
+                                    {{ course.course_start.strftime('%Y/%m/%d') }} ~<br>
+                                    {{ course.course_end.strftime('%Y/%m/%d') }}
+                                </strong>
+                            </li>
+                        </ul>
+                    </section>
+
+                    <div class="enroll-actions">
+                        {% if current_user.is_authenticated and current_user.role %}
+                            {% if current_user.role.name == 'user' %}
+                                {% if is_enrolled %}
+                                    <button class="btn-success" disabled>
+                                        <i class="bi bi-check-circle"></i>已報名
+                                    </button>
+                                {% elif can_enroll %}
+                                    <form action="{{ url_for('applications.apply_course', course_number=course.course_number) }}" method="POST">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <button type="submit" class="btn-primary">
+                                            <i class="bi bi-pencil-square"></i>立即報名
+                                        </button>
+                                    </form>
+                                {% else %}
+                                    <button class="btn-disabled" disabled>
+                                        <i class="bi bi-x-circle"></i>無法報名
+                                    </button>
+                                {% endif %}
+                            {% endif %}
+                        {% else %}
+                            <a href="{{ url_for('auth.login', next=request.url) }}" class="btn-primary">
+                                <i class="bi bi-box-arrow-in-right"></i>登入後報名
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </aside>
+        </div>
+
+        {% if current_user.is_authenticated and application %}
+            <div class="signin-card">
+                <div class="signin-content">
+                    <h3>課程簽到</h3>
+                    {% if application.sign_in_state %}
+                        <div class="signin-status success">
+                            <i class="bi bi-check-circle"></i>您已完成簽到
+                        </div>
+                    {% elif can_sign_in %}
+                        <form action="{{ url_for('courses.course_sign_in', course_number=course.course_number) }}" method="POST">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="btn-primary">
+                                <i class="bi bi-pen"></i>立即簽到
+                            </button>
+                        </form>
+                    {% else %}
+                        <div class="signin-status warning">
+                            <i class="bi bi-exclamation-circle"></i>
+                            {% if course_status.is_upcoming %}
+                                課程尚未開始，無法簽到
+                            {% elif course_status.is_finished %}
+                                課程已結束，無法簽到
+                            {% elif not course_status.is_in_progress %}
+                                目前不在課程期間內，無法簽到
+                            {% else %}
+                                簽到功能尚未開放
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                    
+                    <div class="course-period">
+                        課程期間：{{ course.course_start.strftime('%Y/%m/%d') }} ~ {{ course.course_end.strftime('%Y/%m/%d') }}
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+        {% if can_manage and enrolled_users %}
+            <div class="enrolled-users">
+                <div class="section-header">
+                    <h3>報名學員清單</h3>
+                    <div class="user-stats">
+                        <span>總報名人數：{{ enrolled_users|length }}人</span>
+                        <span>已簽到：{{ enrolled_users|selectattr('sign_in_state', 'true')|list|length }}人</span>
+                        <span>未簽到：{{ enrolled_users|selectattr('sign_in_state', 'false')|list|length }}人</span>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>報名時間</th>
+                                <th>員工編號</th>
+                                <th>姓名</th>                            
+                                <th>簽到狀態</th>
+                                <th>簽到時間</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for application in enrolled_users %}
+                                <tr>
+                                    <td>{{ application.create_at.strftime('%Y/%m/%d %H:%M') }}</td>
+                                    <td>{{ application.user.employee_number }}</td>
+                                    <td>{{ application.user.full_name }}</td>
+                                    <td>
+                                        <span class="status-badge {{ 'success' if application.sign_in_state else 'neutral' }}">
+                                            <i class="bi bi-{{ 'check-circle' if application.sign_in_state else 'clock' }}"></i>
+                                            {{ '已簽到' if application.sign_in_state else '未簽到' }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        {{ application.sign_in_time.strftime('%Y/%m/%d %H:%M') if application.sign_in_state else '-' }}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+    {% if can_manage %}
+        <!-- 刪除確認對話框 -->
+        <div class="modal fade" id="deleteCourseModal{{ course.course_number }}" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5>確認刪除課程</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>確定要刪除課程「{{ course.title }}」嗎？</p>
+                        {% if course.current_attendance > 0 %}
+                            <div class="alert warning">
+                                <i class="bi bi-exclamation-triangle"></i>
+                                此課程已有 {{ course.current_attendance }} 人報名，無法刪除
+                            </div>
+                        {% else %}
+                            <div class="alert danger">
+                                <i class="bi bi-exclamation-triangle"></i>
+                                此操作無法復原！
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn-outline" data-bs-dismiss="modal">取消</button>
+                        {% if course.current_attendance == 0 %}
+                            <form action="{{ url_for('courses.delete_course', course_number=course.course_number) }}" 
+                                method="POST" style="display: inline;">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button type="submit" class="btn-danger">確定刪除</button>
+                            </form>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<style>
+:root {
+    --background-color: #f5f5f7;
+    --primary-color: #000000;
+    --secondary-color: #6e6e73;
+    --border-color: #d2d2d7;
+    --success-color: #34c759;
+    --warning-color: #ff9500;
+    --danger-color: #ff3b30;
+    --neutral-color: #86868b;
+}
+
+/* 容器和布局 */
+.course-container {
+    background-color: var(--background-color);
+    min-height: 100vh;
+    padding: 24px;
+}
+
+.course-content {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* 狀態欄 */
+.status-bar {
+    margin: -24px -24px 24px -24px;
+    padding: 12px;
+    font-size: 14px;
+}
+
+.status-bar.success {
+    background-color: rgba(52, 199, 89, 0.1);
+    color: var(--success-color);
+}
+
+.status-bar.warning {
+    background-color: rgba(255, 149, 0, 0.1);
+    color: var(--warning-color);
+}
+
+.status-bar.neutral {
+    background-color: rgba(134, 134, 139, 0.1);
+    color: var(--neutral-color);
+}
+
+.status-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.status-highlight {
+    font-weight: 500;
+}
+
+/* 標題區域 */
+.course-header {
+    background: white;
+    border-radius: 16px;
+    padding: 32px;
+    margin-bottom: 24px;
+    box-shadow: 0 2px 20px rgba(0, 0, 0, 0.08);
+}
+
+.title-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.title-section h1 {
+    font-size: 32px;
+    font-weight: 600;
+    margin: 0;
+}
+
+/* 內容區域 */
+.course-body {
+    display: grid;
+    gap: 24px;
+    grid-template-columns: 1fr 360px;
+}
+
+@media (max-width: 1024px) {
+    .course-body {
+        grid-template-columns: 1fr;
+    }
+}
+
+.main-content {
+    background: white;
+    border-radius: 16px;
+    padding: 32px;
+    box-shadow: 0 2px 20px rgba(0, 0, 0, 0.08);
+}
+
+.course-section {
+    margin-bottom: 32px;
+}
+
+.course-section h2 {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+/* 側邊資訊卡 */
+.info-card {
+    background: white;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 2px 20px rgba(0, 0, 0, 0.08);
+}
+
+/* 側邊資訊卡（續） */
+.card-section {
+    padding: 24px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.card-section h3 {
+    font-size: 17px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    color: var(--primary-color);
+}
+
+.info-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 16px;
+}
+
+.info-list li {
+    display: grid;
+    grid-template-columns: 24px 1fr auto;
+    align-items: center;
+    gap: 12px;
+}
+
+.info-list li.full {
+    grid-template-columns: 24px 1fr;
+}
+
+.info-list li.full strong {
+    grid-column: 2 / -1;
+    margin-top: 4px;
+}
+
+.info-list i {
+    color: var(--secondary-color);
+    font-size: 16px;
+}
+
+.info-list span {
+    color: var(--secondary-color);
+    font-size: 14px;
+}
+
+.info-list strong {
+    color: var(--primary-color);
+    font-weight: 500;
+}
+
+/* 按鈕樣式 */
+.btn-primary,
+.btn-success,
+.btn-outline,
+.btn-danger,
+.btn-disabled {
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+    cursor: pointer;
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #333;
+}
+
+.btn-success {
+    background-color: var(--success-color);
+    color: white;
+}
+
+.btn-outline {
+    background-color: transparent;
+    border-color: var(--border-color);
+    color: var(--primary-color);
+}
+
+.btn-outline:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.btn-outline.danger {
+    color: var(--danger-color);
+}
+
+.btn-danger {
+    background-color: var(--danger-color);
+    color: white;
+}
+
+.btn-disabled {
+    background-color: var(--neutral-color);
+    color: white;
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.enroll-actions {
+    padding: 24px;
+    text-align: center;
+}
+
+.enroll-actions button,
+.enroll-actions a {
+    width: 100%;
+    justify-content: center;
+}
+
+/* 簽到卡片 */
+.signin-card {
+    background: white;
+    border-radius: 16px;
+    margin-top: 24px;
+    box-shadow: 0 2px 20px rgba(0, 0, 0, 0.08);
+}
+
+.signin-content {
+    padding: 24px;
+}
+
+.signin-content h3 {
+    font-size: 17px;
+    font-weight: 600;
+    margin-bottom: 16px;
+}
+
+.signin-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin-bottom: 12px;
+}
+
+.signin-status.success {
+    background-color: rgba(52, 199, 89, 0.1);
+    color: var(--success-color);
+}
+
+.signin-status.warning {
+    background-color: rgba(255, 149, 0, 0.1);
+    color: var(--warning-color);
+}
+
+.course-period {
+    font-size: 14px;
+    color: var(--secondary-color);
+}
+
+/* 報名學員列表 */
+.enrolled-users {
+    background: white;
+    border-radius: 16px;
+    margin-top: 24px;
+    padding: 24px;
+    box-shadow: 0 2px 20px rgba(0, 0, 0, 0.08);
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.section-header h3 {
+    font-size: 20px;
+    font-weight: 600;
+    margin: 0;
+}
+
+.user-stats {
+    display: flex;
+    gap: 16px;
+    font-size: 14px;
+    color: var(--secondary-color);
+}
+
+.table-container {
+    overflow-x: auto;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.data-table th {
+    text-align: left;
+    padding: 12px 16px;
+    font-weight: 500;
+    color: var(--secondary-color);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.data-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.status-badge.success {
+    background-color: rgba(52, 199, 89, 0.1);
+    color: var(--success-color);
+}
+
+.status-badge.neutral {
+    background-color: rgba(134, 134, 139, 0.1);
+    color: var(--neutral-color);
+}
+
+/* 模態框樣式 */
+.modal-content {
+    border-radius: 16px;
+    border: none;
+}
+
+.modal-header {
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.modal-header h5 {
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.modal-body {
+    padding: 24px;
+}
+
+.modal-footer {
+    padding: 16px 24px;
+    border-top: 1px solid var(--border-color);
+}
+
+.alert {
+    padding: 12px 16px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 16px;
+}
+
+.alert.warning {
+    background-color: rgba(255, 149, 0, 0.1);
+    color: var(--warning-color);
+}
+
+.alert.danger {
+    background-color: rgba(255, 59, 48, 0.1);
+    color: var(--danger-color);
+}
+
+/* 響應式調整 */
+@media (max-width: 768px) {
+    .course-container {
+        padding: 16px;
+    }
+
+    .status-bar {
+        margin: -16px -16px 16px -16px;
+    }
+
+    .course-header {
+        padding: 24px;
+    }
+
+    .title-section {
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .title-section h1 {
+        font-size: 24px;
+    }
+
+    .main-content {
+        padding: 24px;
+    }
+
+    .action-buttons {
+        width: 100%;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+    }
+}
+</style>
+
+{%endblock%}

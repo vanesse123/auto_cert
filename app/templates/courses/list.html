@@ -1,0 +1,437 @@
+{% extends "base.html" %}
+
+{% block title %}課程總覽 - {{ super() }}{% endblock %}
+
+{% block content %}
+<div class="page-container">
+    <!-- 頁面標題區塊 -->
+    <header class="page-header">
+        <div class="header-content">
+            <div class="header-info animate-fade">
+                <h1 class="display-4 fw-bold text-gradient">課程總覽</h1>
+                <p class="lead text-muted">課程資訊一覽</p>
+            </div>
+            <div class="search-section">
+                <form class="search-form" method="get">
+                    <div class="search-wrapper">
+                        <input type="text" 
+                               name="search" 
+                               placeholder="搜尋課程名稱或開課單位..."
+                               value="{{ search }}"
+                               class="search-input">
+                        <button type="submit" class="search-button">
+                            <i class="bi bi-search"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+                  
+    </header>
+
+    <!-- 課程列表 -->
+    <div class="content-card">
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        {% for header in [
+                            ('course_number', '課程編號'),
+                            ('title', '課程名稱'),
+                            ('enrollment_status', '報名狀態'),
+                            ('current_attendance', '報名人數'),
+                            ('course_start', '開課時間'),
+                            (None, '操作')
+                        ] %}
+                            <th {% if not loop.first %}class="text-center"{% endif %}>
+                                {% if header[0] %}
+                                <button onclick="updateSort('{{ header[0] }}')" 
+                                        class="sort-button">
+                                    {{ header[1] }}
+                                    <i class="bi bi-sort-{% if sort_by == header[0] %}{% if order == 'asc' %}down{% else %}up{% endif %}{% else %}down{% endif %}"></i>
+                                </button>
+                                {% else %}
+                                    {{ header[1] }}
+                                {% endif %}
+                            </th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for course in courses %}
+                    <tr>
+                        <td>{{ course.course_number }}</td>
+                        <td>{{ course.title }}</td>
+                        <td class="text-center">
+                            <span class="status-badge {{ 'active' if course.can_enroll() else 'inactive' }}">
+                                {{ '報名中' if course.can_enroll() else '未開放' }}
+                            </span>
+                        </td>
+                        <td class="text-center">
+                            <div class="progress-wrapper">
+                                <div class="progress">
+                                    <div class="progress-bar" 
+                                         style="width: {{ (course.current_attendance / course.max_attendance) * 100 }}%">
+                                    </div>
+                                </div>
+                                <span class="progress-text">
+                                    {{ course.current_attendance }}/{{ course.max_attendance }}
+                                </span>
+                            </div>
+                        </td>
+                        <td class="text-center">{{ course.course_start.strftime('%Y/%m/%d') }}</td>
+                        <td class="text-center">
+                            <div class="action-buttons">
+                                <a href="{{ url_for('courses.edit_course', course_number=course.course_number) }}"
+                                   class="btn-action edit">
+                                    <i class="bi bi-pencil-square"></i>
+                                    <span class="btn-text">編輯</span>
+                                </a>
+                                <a href="{{ url_for('courses.view_course', course_number=course.course_number) }}"
+                                   class="btn-action view">
+                                    <i class="bi bi-eye"></i>
+                                    <span class="btn-text">查看</span>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 分頁控制 -->
+    {% if pagination.pages > 1 %}
+    <div class="pagination-container">
+        <nav class="pagination-nav">
+            <ul class="pagination-list">
+                {% for page in pagination.iter_pages() %}
+                    {% if page %}
+                        <li class="page-item {{ 'active' if page == pagination.page }}">
+                            <a href="{{ url_for('courses.course_list', page=page, search=search, sort=sort_by, order=order) }}"
+                               class="page-link">{{ page }}</a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link">...</span>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+        </nav>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+:root {
+    --primary-color: #000000;
+    --secondary-color: #6e6e73;
+    --border-color: #d2d2d7;
+    --background-color: #f5f5f7;
+    --success-color: #34c759;
+    --warning-color: #ff9500;
+    --card-shadow: 0 2px 20px rgba(0, 0, 0, 0.08);
+}
+
+/* 容器布局 */
+.page-container {
+    padding: 24px;
+    background-color: var(--background-color);
+    min-height: 100vh;
+}
+
+/* 頁面標題 */
+.page-header {
+    background: white;
+    border-radius: 16px;
+    padding: 32px;
+    margin-bottom: 24px;
+    box-shadow: var(--card-shadow);
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 24px;
+}
+
+
+.header-info p {
+    margin: 8px 0 0;
+    color: var(--secondary-color);
+    font-size: 17px;
+}
+
+/* 搜尋區域 */
+.search-wrapper {
+    position: relative;
+    width: 300px;
+}
+
+.search-input {
+    width: 100%;
+    padding: 12px 40px 12px 16px;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    font-size: 14px;
+    transition: all 0.2s ease;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.05);
+}
+
+.search-button {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--secondary-color);
+    padding: 8px;
+    cursor: pointer;
+}
+
+/* 內容卡片 */
+.content-card {
+    background: white;
+    border-radius: 16px;
+    box-shadow: var(--card-shadow);
+    overflow: hidden;
+}
+
+/* 表格樣式 */
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.data-table th {
+    padding: 16px;
+    font-weight: 500;
+    color: var(--secondary-color);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.data-table td {
+    padding: 16px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.sort-button {
+    background: none;
+    border: none;
+    padding: 0;
+    color: var(--secondary-color);
+    font-weight: 500;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.sort-button:hover {
+    color: var(--primary-color);
+}
+
+/* 狀態標籤 */
+.status-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.status-badge.active {
+    background-color: rgba(52, 199, 89, 0.1);
+    color: var(--success-color);
+}
+
+.status-badge.inactive {
+    background-color: rgba(110, 110, 115, 0.1);
+    color: var(--secondary-color);
+}
+
+/* 進度條 */
+.progress-wrapper {
+    width: 150px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.progress {
+    flex-grow: 1;
+    height: 6px;
+    background-color: #f5f5f7;
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    height: 100%;
+    background-color: var(--success-color);
+    transition: width 0.3s ease;
+}
+
+.progress-text {
+    font-size: 12px;
+    color: var(--secondary-color);
+    white-space: nowrap;
+}
+
+/* 操作按鈕 */
+.action-buttons {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+}
+
+.btn-action {
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    border: 1px solid var(--border-color);
+}
+
+.btn-action.edit {
+    color: var(--primary-color);
+}
+
+.btn-action.view {
+    color: var(--success-color);
+}
+
+.btn-action:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+    transform: translateY(-1px);
+}
+
+/* 分頁 */
+.pagination-container {
+    margin-top: 24px;
+    display: flex;
+    justify-content: center;
+}
+
+.pagination-list {
+    display: flex;
+    gap: 4px;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.page-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: white;
+    color: var(--primary-color);
+    text-decoration: none;
+    transition: all 0.2s ease;
+    border: 1px solid var(--border-color);
+}
+
+.page-item.active .page-link {
+    background-color: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+.page-link:hover:not(.active) {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* 動畫效果 */
+.animate-fade {
+    animation: fadeIn 0.8s ease-out forwards;
+}
+
+.text-gradient {
+    background: linear-gradient(45deg, #2937f0, #9f1ae2);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin: 0;
+    font-size: 2.5rem;
+}
+
+.header-info p {
+    margin: 8px 0 0;
+    font-size: 1.25rem;
+    color: #6c757d;
+}
+
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 響應式調整 */
+@media (max-width: 768px) {
+    .page-container {
+        padding: 16px;
+    }
+    
+    .header-content {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .search-wrapper {
+        width: 100%;
+    }
+    
+    .progress-wrapper {
+        width: 120px;
+    }
+    
+    .btn-text {
+        display: none;
+    }
+}
+
+</style>
+
+<script>
+function updateSort(column) {
+    const params = new URLSearchParams(window.location.search);
+    const currentSort = params.get('sort');
+    const currentOrder = params.get('order') || 'asc';
+    
+    if (currentSort === column) {
+        params.set('order', currentOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+        params.set('sort', column);
+        params.set('order', 'asc');
+    }
+    
+    params.set('page', '1');
+    window.location.search = params.toString();
+}
+</script>
+{% endblock %}

@@ -1,0 +1,255 @@
+{% extends "base.html" %}
+
+{% block title %}個人資料 - {{ super() }}{% endblock %}
+
+{% block content %}
+<div class="profile-container">
+    <div class="profile-card">
+        <header class="profile-header">
+            <h1>個人資料</h1>
+            <p class="profile-header-desc">查看和管理您的帳戶資訊</p>
+        </header>
+
+        <div class="info-grid">
+            <div class="info-section">
+                <h2>基本資訊</h2>
+                <div class="info-group">
+                    <div class="info-item">
+                        <span class="info-label">姓名</span>
+                        <span class="info-value">{{ current_user.full_name }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">帳號</span>
+                        <span class="info-value">{{ current_user.account }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-section">
+                <h2>聯絡方式</h2>
+                <div class="info-group">
+                    <div class="info-item">
+                        <span class="info-label">電子郵件</span>
+                        <span class="info-value">{{ current_user.email }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">手機號碼</span>
+                        <span class="info-value">{{ current_user.phone }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-section">
+                <h2>身分資訊</h2>
+                <div class="info-group">
+                    <div class="info-item">
+                        <span class="info-label">身分證號</span>
+                        <span class="info-value">{{ current_user.id_card }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">職號</span>
+                        <span class="info-value">{{ current_user.employee_number }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">角色</span>
+                        <span class="info-value">
+                            {% if current_user.role.name == 'agency' %}
+                                管理者
+                            {% else %}
+                                教師
+                            {% endif %}
+                        </span>
+                    </div>
+                    {% if current_user.role.name == 'agency' %}
+                    <div class="info-item">
+                        <span class="info-label">部門</span>
+                        <span class="info-value">
+                            {{ current_user.department.section_name if current_user.department else '未設置' }}
+                            /
+                            {{ current_user.department.subsection_name if current_user.department else '未設置' }}
+                        </span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="profile-actions">
+            <button onclick="window.location.href='#'" class="btn btn-primary">修改資料</button>
+            <button onclick="window.location.href='#'" class="btn btn-secondary">修改密碼</button>
+        </div>
+    </div>
+</div>
+
+<style>
+:root {
+    --background-color: #f5f5f7;
+    --card-background: #ffffff;
+    --text-primary: #1d1d1f;
+    --text-secondary: #6e6e73;
+    --border-color: #d2d2d7;
+    --section-spacing: 40px;
+    --item-spacing: 24px;
+}
+
+.profile-container {
+    min-height: 100vh;
+    background-color: var(--background-color);
+    padding: 48px 24px;
+}
+
+.profile-card {
+    max-width: 800px;
+    margin: 0 auto;
+    background-color: var(--card-background);
+    border-radius: 20px;
+    padding: 48px;
+    box-shadow: 0 2px 20px rgba(0, 0, 0, 0.08);
+}
+
+.profile-header {
+    text-align: center;
+    margin-bottom: var(--section-spacing);
+}
+
+.profile-header h1 {
+    font-size: 32px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+}
+
+.profile-header-desc {
+    color: var(--text-secondary);
+    font-size: 17px;
+    margin: 0;
+}
+
+.info-grid {
+    display: grid;
+    gap: var(--section-spacing);
+    margin-bottom: var(--section-spacing);
+}
+
+.info-section h2 {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: var(--item-spacing);
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.info-group {
+    display: grid;
+    gap: var(--item-spacing);
+}
+
+@media (min-width: 768px) {
+    .info-group {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+.info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.info-label {
+    font-size: 14px;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.info-value {
+    font-size: 17px;
+    color: var(--text-primary);
+    font-weight: 400;
+}
+
+.profile-actions {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-top: var(--section-spacing);
+    padding-top: var(--section-spacing);
+    border-top: 1px solid var(--border-color);
+}
+
+.btn {
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    border-radius: 6px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    border: 1px solid transparent;
+}
+
+.btn-primary {
+    background-color: #000000;
+    color: white;
+    border-color: #000000;
+}
+
+.btn-primary:hover {
+    background-color: #333333;
+    border-color: #333333;
+}
+
+.btn-secondary {
+    background-color: transparent;
+    color: #000000;
+    border-color: #d2d2d7;
+}
+
+.btn-secondary:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* 優化滾動條 */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--text-secondary);
+}
+
+/* 無障礙焦點樣式 */
+*:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.2);
+    border-radius: 4px;
+}
+
+@media (max-width: 768px) {
+    .profile-card {
+        padding: 32px 24px;
+    }
+    
+    .profile-header h1 {
+        font-size: 28px;
+    }
+    
+    .profile-actions {
+        flex-direction: row;
+        justify-content: center;
+        gap: 8px;
+    }
+}
+</style>
+{% endblock %}

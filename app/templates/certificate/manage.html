@@ -1,0 +1,238 @@
+{% extends "base.html" %}
+
+{% block title %}證書管理 - {{ course.title }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- 課程資訊卡片 -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <h1 class="apple-style-title mb-3">{{ course.title }}</h1>
+                    <div class="text-secondary">
+                        <p class="mb-1">課程期間：{{ course.course_start.strftime('%Y/%m/%d') }} - {{ course.course_end.strftime('%Y/%m/%d') }}</p>
+                        <p class="mb-0">課程時數：{{ course.hours }}小時</p>
+                    </div>
+                </div>
+                <div class="d-flex gap-4 text-center">
+                    <div class="px-3">
+                        <div class="h3 mb-1 text-primary">{{ stats.total_students }}</div>
+                        <div class="small text-secondary">總報名人數</div>
+                    </div>
+                    <div class="px-3 border-start">
+                        <div class="h3 mb-1" style="color: var(--warning-color)">{{ stats.certified }}</div>
+                        <div class="small text-secondary">已發證書</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 篩選工具列 -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <form id="filterForm" method="GET" class="row g-3 align-items-end">
+            <!--
+                <div class="col-md-3">
+                    <label class="form-label">簽到狀態</label>
+                    <select name="sign_in" class="form-select">
+                        <option value="all" {% if filters.sign_in == 'all' %}selected{% endif %}>全部簽到狀態</option>
+                        <option value="complete" {% if filters.sign_in == 'complete' %}selected{% endif %}>已簽到</option>
+                        <option value="incomplete" {% if filters.sign_in == 'incomplete' %}selected{% endif %}>未簽到</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">證書狀態</label>
+                    <select name="cert_status" class="form-select">
+                        <option value="all" {% if filters.cert_status == 'all' %}selected{% endif %}>全部證書狀態</option>
+                        <option value="issued" {% if filters.cert_status == 'issued' %}selected{% endif %}>已發放</option>
+                        <option value="pending" {% if filters.cert_status == 'pending' %}selected{% endif %}>待發放</option>
+                    </select>
+                </div>
+-->
+                <div class="col-md-4">
+                    <label class="form-label">搜尋學員</label>
+                    <input type="text" 
+                           name="search" 
+                           class="form-control"
+                           placeholder="輸入姓名或員工編號..." 
+                           value="{{ filters.search }}">
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-search me-2"></i>搜尋
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 學員列表 -->
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <form id="issueForm" method="POST" action="{{ url_for('certificate.issue_certificates') }}">
+                {{ form.csrf_token }}
+                <input type="hidden" name="course_number" value="{{ course.course_number }}">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th width="40">
+                                    <input type="checkbox" id="selectAll" class="form-check-input">
+                                </th>
+                                <th>員工編號</th>
+                                <th>姓名</th>
+                                <th class="text-center">簽到狀態</th>
+                                <th class="text-center">簽到時間</th>
+                                <th class="text-center">證書狀態</th>
+                                <th class="text-center">證書編號</th>
+                                <th class="text-center">發放日期</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for student in students %}
+                            <tr>
+                                <td>
+                                    <input type="checkbox" 
+                                           name="employee_numbers" 
+                                           value="{{ student.employee_number }}"
+                                           class="form-check-input student-checkbox"
+                                           {% if student.certification_code or not student.sign_in_state %}disabled{% endif %}>
+                                </td>
+                                <td>{{ student.employee_number }}</td>
+                                <td>{{ student.full_name }}</td>
+                                <td class="text-center">
+                                    <span class="badge {{ 'bg-success' if student.sign_in_state else 'bg-secondary' }}">
+                                        {{ '已簽到' if student.sign_in_state else '未簽到' }}
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    {{ student.sign_in_time.strftime('%Y/%m/%d %H:%M') if student.sign_in_time else '-' }}
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge {% if student.certification_code %}bg-primary{% else %}bg-warning{% endif %}">
+                                        {{ '已發放' if student.certification_code else ('待發放' if student.sign_in_state else '無法發放') }}
+                                    </span>
+                                </td>
+                                <td class="text-center">{{ student.certification_code or '-' }}</td>
+                                <td class="text-center">
+                                    {{ student.issue_date.strftime('%Y/%m/%d') if student.issue_date else '-' }}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                {% if not students %}
+                <div class="text-center py-4">
+                    <p class="text-secondary mb-0">沒有符合條件的學員</p>
+                </div>
+                {% endif %}
+
+                {% if students %}
+                <div class="mt-4 d-flex justify-content-between align-items-center">
+                    <div id="selectedCount" class="text-secondary">已選擇 0 位學員</div>
+                    <button type="submit" class="btn btn-success">
+                        <i class="bi bi-card-checklist me-2"></i>批量發放證書
+                    </button>
+                </div>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- 引入 JavaScript -->
+<script src="{{ url_for('static', filename='js/certificateManager.js') }}"></script>
+<style>
+    :root {
+        --primary-color: #000000;
+        --secondary-color: #6e6e73;
+        --border-color: #d2d2d7;
+        --background-color: #f5f5f7;
+        --success-color: #34c759;
+        --warning-color: #ff9500;
+        --card-shadow: 0 2px 20px rgba(0, 0, 0, 0.08);
+    }
+    
+    .apple-style-title {
+        font-size: 32px;
+        font-weight: 600;
+        background: linear-gradient(45deg, #2937f0, #9f1ae2);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    
+    .card {
+        border: none;
+        border-radius: 16px;
+        box-shadow: var(--card-shadow);
+        transition: all 0.2s ease;
+    }
+    
+    .card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12);
+    }
+    
+    .badge {
+        padding: 0.5rem 1rem;
+        font-weight: normal;
+        border-radius: 2rem;
+    }
+    
+    .bg-success {
+        background-color: rgba(52, 199, 89, 0.1) !important;
+        color: #198754;
+    }
+    
+    .bg-warning {
+        background-color: rgba(255, 193, 7, 0.1) !important;
+        color: #ffc107;
+    }
+    
+    .bg-secondary {
+        background-color: rgba(108, 117, 125, 0.1) !important;
+        color: #6c757d;
+    }
+    
+    .bg-primary {
+        background-color: rgba(13, 110, 253, 0.1) !important;
+        color: #0d6efd;
+    }
+    
+    .table th {
+        font-weight: 500;
+        color: var(--secondary-color);
+    }
+    
+    .btn {
+        padding: 0.5rem 1rem;
+        font-size: 14px;
+        font-weight: 500;
+        border-radius: 8px;
+    }
+    
+    @media (max-width: 768px) {
+        .apple-style-title {
+            font-size: 24px;
+        }
+        
+        .d-flex {
+            flex-direction: column;
+            gap: 1rem;
+        }
+    
+        .border-start {
+            border: none !important;
+        }
+        
+        .px-3 {
+            padding: 0 !important;
+        }
+    }
+</style>
+
+{% endblock %}

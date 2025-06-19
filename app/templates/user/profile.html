@@ -1,0 +1,88 @@
+<!-- app/templates/user/profile.html -->
+{% extends "base.html" %}
+
+{% block title %}個人資料 - {{ super() }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title mb-0">個人資料</h4>
+                </div>
+                <div class="card-body">
+                    <!--
+                    <div class="row mb-4">
+                        <div class="col-12 text-center mb-3">
+                            <img src="{{ url_for('static', filename='images/default-avatar.png') }}" 
+                                 alt="用戶頭像" 
+                                 class="rounded-circle" 
+                                 style="width: 120px; height: 120px;">
+                        </div>
+                    </div>
+                     -->
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">姓名</label>
+                            <p class="form-control-static">{{ current_user.full_name }}</p>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">帳號</label>
+                            <p class="form-control-static">{{ current_user.account }}</p>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">電子郵件</label>
+                            <p class="form-control-static">{{ current_user.email }}</p>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">手機號碼</label>
+                            <p class="form-control-static">{{ current_user.phone }}</p>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">身分證號</label>
+                            <p class="form-control-static">{{ current_user.id_card }}</p>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">職號</label>
+                            <p class="form-control-static">{{ current_user.employee_number }}</p>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">角色</label>
+                            <p class="form-control-static">
+                                {% if current_user.role.name == 'agency' %}
+                                    管理者
+                                {% else %}
+                                    教師
+                                {% endif %}
+                            </p>
+                        </div>
+                        
+                        {% if current_user.role.name == 'agency' %}
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">部門</label>
+                            <p class="form-control-static">
+                                {{ current_user.department.section_name if current_user.department else '未設置' }}
+                                /
+                                {{ current_user.department.subsection_name if current_user.department else '未設置' }}
+                            </p>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="text-center mt-4">
+                        <a href="#" class="btn btn-primary me-2">修改資料</a>
+                        <a href="#" class="btn btn-outline-primary">修改密碼</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

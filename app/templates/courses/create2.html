@@ -1,0 +1,378 @@
+{% extends "base.html" %}
+
+{% block title %}建立課程 - {{ super() }}{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <div class="form-content">
+        <header class="form-header">
+            <h1>建立課程</h1>
+        </header>
+
+        <form method="POST" class="minimal-form">
+            {{ form.csrf_token }}
+            
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert {{ 'error' if category == 'error' else 'success' }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <section class="form-section">
+                <div class="field-group">
+                    <div class="field-full">
+                        {{ form.title.label(class="field-label") }}
+                        {{ form.title(class="field-input" + (" has-error" if form.title.errors else ""), placeholder="輸入課程名稱") }}
+                        {% if form.title.errors %}
+                            <span class="error-message">{{ form.title.errors[0] }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="field-group">
+                    <div class="field">
+                        {{ form.max_attendance.label(class="field-label") }}
+                        {{ form.max_attendance(class="field-input" + (" has-error" if form.max_attendance.errors else ""), placeholder="人數上限") }}
+                        {% if form.max_attendance.errors %}
+                            <span class="error-message">{{ form.max_attendance.errors[0] }}</span>
+                        {% endif %}
+                    </div>
+                    <div class="field">
+                        {{ form.hours.label(class="field-label") }}
+                        {{ form.hours(class="field-input" + (" has-error" if form.hours.errors else ""), placeholder="課程時數") }}
+                        {% if form.hours.errors %}
+                            <span class="error-message">{{ form.hours.errors[0] }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </section>
+
+            <section class="form-section">
+                <h2 class="section-title">報名時間</h2>
+                <div class="field-group">
+                    <div class="field">
+                        {{ form.signup_start.label(class="field-label") }}
+                        {{ form.signup_start(class="field-input" + (" has-error" if form.signup_start.errors else ""), 
+                                        type="datetime-local") }}
+                        {% if form.signup_start.errors %}
+                            <span class="error-message">{{ form.signup_start.errors[0] }}</span>
+                        {% endif %}
+                    </div>
+                    <div class="field">
+                        {{ form.signup_deadline.label(class="field-label") }}
+                        {{ form.signup_deadline(class="field-input" + (" has-error" if form.signup_deadline.errors else ""), 
+                                            type="datetime-local") }}
+                        {% if form.signup_deadline.errors %}
+                            <span class="error-message">{{ form.signup_deadline.errors[0] }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </section>
+
+            <section class="form-section">
+                <h2 class="section-title">課程時間</h2>
+                <div class="field-group">
+                    <div class="field">
+                        {{ form.course_start.label(class="field-label") }}
+                        {{ form.course_start(class="field-input" + (" has-error" if form.course_start.errors else ""), 
+                                        type="date") }}
+                        {% if form.course_start.errors %}
+                            <span class="error-message">{{ form.course_start.errors[0] }}</span>
+                        {% endif %}
+                    </div>
+                    <div class="field">
+                        {{ form.course_end.label(class="field-label") }}
+                        {{ form.course_end(class="field-input" + (" has-error" if form.course_end.errors else ""), 
+                                        type="date") }}
+                        {% if form.course_end.errors %}
+                            <span class="error-message">{{ form.course_end.errors[0] }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </section>
+
+            <section class="form-section">
+                <div class="field-group">
+                    <div class="field-full">
+                        {{ form.location.label(class="field-label") }}
+                        {{ form.location(class="field-input" + (" has-error" if form.location.errors else ""), placeholder="輸入上課地點") }}
+                        {% if form.location.errors %}
+                            <span class="error-message">{{ form.location.errors[0] }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="field-group">
+                    <div class="field-full">
+                        {{ form.intro.label(class="field-label") }}
+                        {{ form.intro(class="field-input" + (" has-error" if form.intro.errors else ""), 
+                                    rows="3", placeholder="簡短介紹課程內容") }}
+                        {% if form.intro.errors %}
+                            <span class="error-message">{{ form.intro.errors[0] }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="field-group">
+                    <div class="field-full">
+                        {{ form.description.label(class="field-label") }}
+                        {{ form.description(class="field-input" + (" has-error" if form.description.errors else ""), 
+                                        rows="5", placeholder="詳細描述課程內容、目標與特色") }}
+                        {% if form.description.errors %}
+                            <span class="error-message">{{ form.description.errors[0] }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </section>
+
+            <div class="form-actions">
+                <a href="{{ url_for('courses.manage_courses') }}" class="btn-secondary">取消</a>
+                {{ form.submit(class="btn-primary") }}
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+:root {
+    --primary-color: #000;
+    --secondary-color: #86868b;
+    --error-color: #ff3b30;
+    --success-color: #34c759;
+    --border-color: #d2d2d7;
+    --focus-color: #0071e3;
+    --background-color: #ffffff;
+    --section-spacing: 48px;
+    --field-spacing: 24px;
+}
+
+.form-container {
+    min-height: 100vh;
+    background-color: var(--background-color);
+    padding: 64px 24px;
+}
+
+.form-content {
+    max-width: 980px;
+    margin: 0 auto;
+}
+
+.form-header {
+    text-align: center;
+    margin-bottom: var(--section-spacing);
+}
+
+.form-header h1 {
+    font-size: 40px;
+    font-weight: 600;
+    letter-spacing: -0.5px;
+    color: var(--primary-color);
+    margin-bottom: 8px;
+}
+
+.subtitle {
+    font-size: 21px;
+    color: var(--secondary-color);
+    font-weight: 400;
+    margin: 0;
+}
+
+.minimal-form {
+    margin-top: var(--section-spacing);
+}
+
+.form-section {
+    margin-bottom: var(--section-spacing);
+}
+
+.section-title {
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--primary-color);
+    margin-bottom: var(--field-spacing);
+}
+
+.field-group {
+    display: grid;
+    gap: var(--field-spacing);
+    margin-bottom: var(--field-spacing);
+}
+
+.field-group:last-child {
+    margin-bottom: 0;
+}
+
+@media (min-width: 768px) {
+    .field-group {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+.field-full {
+    grid-column: 1 / -1;
+}
+
+.field-label {
+    display: block;
+    font-size: 17px;
+    font-weight: 500;
+    color: var(--primary-color);
+    margin-bottom: 8px;
+}
+
+.field-input {
+    width: 100%;
+    padding: 12px 16px;
+    font-size: 17px;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    background-color: var(--background-color);
+    transition: all 0.2s ease;
+}
+
+.field-input:focus {
+    outline: none;
+    border-color: var(--focus-color);
+    box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.1);
+}
+
+.field-input.has-error {
+    border-color: var(--error-color);
+}
+
+.error-message {
+    display: block;
+    color: var(--error-color);
+    font-size: 14px;
+    margin-top: 8px;
+}
+
+.alert {
+    padding: 16px;
+    border-radius: 12px;
+    margin-bottom: var(--field-spacing);
+    font-size: 17px;
+}
+
+.alert.error {
+    background-color: rgba(255, 59, 48, 0.1);
+    color: var(--error-color);
+}
+
+.alert.success {
+    background-color: rgba(52, 199, 89, 0.1);
+    color: var(--success-color);
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 16px;
+    margin-top: var(--section-spacing);
+}
+
+.btn-primary,
+.btn-secondary {
+    padding: 12px 24px;
+    font-size: 17px;
+    font-weight: 500;
+    border-radius: 12px;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    text-align: center;
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-primary:hover {
+    background-color: #2a2a2a;
+    transform: translateY(-1px);
+}
+
+.btn-secondary {
+    background-color: transparent;
+    color: var(--primary-color);
+    border: 1px solid var(--border-color);
+}
+
+.btn-secondary:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+textarea.field-input {
+    resize: vertical;
+    min-height: 100px;
+}
+
+/* Optimize date/time inputs */
+input[type="date"],
+input[type="datetime-local"] {
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--secondary-color);
+}
+
+/* Focus styles for better accessibility */
+*:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.2);
+    border-radius: 4px;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Smooth scroll to error messages
+    const errorMessages = document.querySelectorAll('.error-message');
+    if (errorMessages.length > 0) {
+        errorMessages[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+    
+    // Add floating label effect
+    const inputs = document.querySelectorAll('.field-input');
+    inputs.forEach(input => {
+        input.addEventListener('focus', () => {
+            input.parentElement.classList.add('focused');
+        });
+        
+        input.addEventListener('blur', () => {
+            if (!input.value) {
+                input.parentElement.classList.remove('focused');
+            }
+        });
+        
+        // Initialize state on load
+        if (input.value) {
+            input.parentElement.classList.add('focused');
+        }
+    });
+});
+</script>
+{% endblock %}

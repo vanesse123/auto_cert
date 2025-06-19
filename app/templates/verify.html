@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}證書驗證 - {{ super() }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title mb-0">證書驗證</h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST" class="needs-validation" novalidate>
+                        <div class="mb-3">
+                            <label for="certificate_id" class="form-label">證書編號</label>
+                            <input type="text" class="form-control" id="certificate_id" 
+                                   name="certificate_id" required>
+                            <div class="invalid-feedback">
+                                請輸入證書編號
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">驗證</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

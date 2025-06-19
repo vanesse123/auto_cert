@@ -1,0 +1,69 @@
+# templates/courses/view.html
+{% extends "base.html" %}
+
+{% block title %}查看課程 - {{ super() }}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+        <div class="p-6">
+            <div class="flex justify-between items-start mb-6">
+                <h1 class="text-2xl font-bold">{{ course.title }}</h1>
+                {% if can_manage %}
+                <a href="{{ url_for('courses.edit_course', course_number=course.course_number) }}"
+                   class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                    編輯課程
+                </a>
+                {% endif %}
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <div class="space-y-4">
+                    <div>
+                        <h3 class="text-lg font-semibold">課程資訊</h3>
+                        <ul class="mt-2 space-y-2">
+                            <li>開課單位：{{ course.department.full_name }}</li>
+                            <li>課程時數：{{ course.hours }} 小時</li>
+                            <li>上課地點：{{ course.location }}</li>
+                            <li>名額：{{ course.current_attendance }}/{{ course.max_attendance }}</li>
+                        </ul>
+                    </div>
+                    
+                    <div>
+                        <h3 class="text-lg font-semibold">時間資訊</h3>
+                        <ul class="mt-2 space-y-2">
+                            <li>報名期間：{{ course.signup_start.strftime('%Y/%m/%d %H:%M') }} - {{ course.signup_deadline.strftime('%Y/%m/%d %H:%M') }}</li>
+                            <li>課程期間：{{ course.course_start.strftime('%Y/%m/%d') }} - {{ course.course_end.strftime('%Y/%m/%d') }}</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    <div>
+                        <h3 class="text-lg font-semibold">課程簡介</h3>
+                        <p class="mt-2">{{ course.intro }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-6">
+                <h3 class="text-lg font-semibold mb-4">課程說明</h3>
+                <div class="prose max-w-none">
+                    {{ course.description | safe }}
+                </div>
+            </div>
+
+            {% if can_enroll %}
+            <div class="mt-8 text-center">
+                <form method="POST" action="{{ url_for('applications.apply_course', course_number=course.course_number) }}">
+                    <button type="submit" 
+                            class="bg-green-500 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg">
+                        立即報名
+                    </button>
+                </form>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

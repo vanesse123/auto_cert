@@ -1,0 +1,490 @@
+{% extends "base.html" %}
+
+{% block title %}我的證書 - {{ super() }}{% endblock %}
+
+{% block extra_css %}
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<style>
+    :root {
+        --primary-color: #000000;
+        --secondary-color: #6e6e73;
+        --border-color: #d2d2d7;
+        --background-color: #f5f5f7;
+        --success-color: #34c759;
+        --card-shadow: 0 2px 20px rgba(0, 0, 0, 0.08);
+        --transition: all 0.2s ease;
+    }
+    
+    body {
+        background-color: var(--background-color);
+        font-family: 'Noto Sans TC', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+    
+    /* 先移除之前的 text-gradient 相關樣式 */
+    
+    .header-info h1.text-gradient,
+    h1.text-gradient {
+        background-image: linear-gradient(45deg, #390fdf, #FF00FF) !important;
+        background-clip: text !important;
+        -webkit-background-clip: text !important;
+        -webkit-text-fill-color: transparent !important;
+        color: transparent;
+        font-size: 2.5rem;
+        font-weight: 700;
+        display: inline-block;  /* 這很重要 */
+    }
+    
+    /* 其他樣式保持不變 */
+    .header-info {
+        margin-bottom: 2rem;
+    }
+    
+    .header-info p {
+        margin: 8px 0 0;
+        font-size: 1.25rem;
+        color: #6c757d;
+    }
+    
+    /* 動畫效果 */
+    .animate-fade {
+        animation: fadeIn 0.8s ease-out forwards;
+    }
+    
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    /* 卡片樣式 */
+    .card {
+        border: none;
+        border-radius: 16px;
+        box-shadow: var(--card-shadow);
+        transition: var(--transition);
+    }
+    
+    .card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12);
+    }
+    
+    /* 標題區域樣式 */
+    .page-header {
+        background: white;
+        border-radius: 16px;
+        padding: 32px;
+        margin-bottom: 24px;
+        box-shadow: var(--card-shadow);
+        display: flex;
+    }
+    
+    .page-header-left{
+        float: left;
+        width: 40%;
+    }
+    
+    .page-header-right{
+        float: left;
+        width: 60%;
+        
+    }
+    
+    .page-title {
+        font-size: 32px;
+        font-weight: 600;
+        color: var(--primary-color);
+        margin: 0;
+        line-height: 1.1;
+    }
+    
+    .page-subtitle {
+        font-size: 17px;
+        color: var(--secondary-color);
+        margin: 8px 0 0 0;
+    }
+    
+    
+    /* 搜尋區域樣式 */
+    .search-section {
+        background: white;
+        border-radius: 16px;
+        padding: 24px;
+        margin-bottom: 24px;
+    }
+    
+    .input-group {
+        border-radius: 8px;
+        overflow: hidden;
+    }
+    
+    .input-group-text {
+        background-color: white;
+        border-right: none;
+    }
+    
+    .form-control {
+        border-left: none;
+        padding: 8px 16px;
+        height: 40px;
+        font-size: 14px;
+    }
+    
+    .form-control:focus {
+        box-shadow: none;
+        border-color: var(--border-color);
+    }
+    
+    /* 按鈕樣式 */
+    .btn {
+        padding: 8px 16px;
+        font-size: 14px;
+        font-weight: 500;
+        border-radius: 6px;
+        transition: var(--transition);
+    }
+    
+    #btn-reset {
+        width: 85px;
+    }
+    
+    .btn-primary {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+    }
+    
+    .btn-primary:hover {
+        background-color: #333;
+        border-color: #333;
+        transform: translateY(-1px);
+    }
+    
+    .btn-outline-primary {
+        color: var(--primary-color);
+        border-color: var(--border-color);
+    }
+    
+    .btn-outline-primary:hover {
+        background-color: rgba(0, 0, 0, 0.05);
+        border-color: var(--primary-color);
+        color: var(--primary-color);
+    }
+    
+    /* 表格樣式 */
+    .table {
+        margin: 0;
+    }
+    
+    .table th {
+        font-weight: 500;
+        color: var(--secondary-color);
+        border-bottom: 1px solid var(--border-color);
+        padding: 12px 16px;
+    }
+    
+    .table td {
+        padding: 16px;
+        vertical-align: middle;
+        border-bottom: 1px solid var(--border-color);
+    }
+    
+    .table-hover tbody tr:hover {
+        background-color: rgba(0, 0, 0, 0.02);
+    }
+    
+    /* 進度條樣式 */
+    .progress {
+        height: 6px;
+        background-color: #f5f5f7;
+        border-radius: 3px;
+    }
+    
+    .progress-bar {
+        background-color: var(--success-color);
+    }
+    
+    /* 狀態徽章 */
+    .badge {
+        padding: 6px 12px;
+        border-radius: 12px;
+        font-weight: 500;
+        font-size: 12px;
+    }
+    
+    .badge.bg-success {
+        background-color: rgba(52, 199, 89, 0.1) !important;
+        color: var(--success-color);
+    }
+    
+    .badge.bg-secondary {
+        background-color: rgba(110, 110, 115, 0.1) !important;
+        color: var(--secondary-color);
+    }
+    
+    /* 分頁控制 */
+    .pagination {
+        gap: 4px;
+    }
+    
+    .page-link {
+        border: none;
+        padding: 8px 12px;
+        color: var(--primary-color);
+        border-radius: 6px;
+        font-weight: 500;
+    }
+    
+    .page-item.active .page-link {
+        background-color: var(--primary-color);
+        color: white;
+    }
+    
+    .page-link:hover {
+        background-color: rgba(0, 0, 0, 0.05);
+        color: var(--primary-color);
+    }
+    
+    /* 日期選擇器自定義樣式 */
+    .flatpickr-calendar {
+        border-radius: 12px;
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12);
+        border: none;
+    }
+    
+    .flatpickr-day.selected {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+    }
+    
+    /* 操作按鈕組 */
+    .btn-group .btn {
+        padding: 6px 12px;
+        font-size: 13px;
+    }
+    
+    /* 響應式調整 */
+    @media (max-width: 768px) {
+        .page-header {
+            padding: 24px;
+        }
+        
+        .page-title {
+            font-size: 24px;
+        }
+        
+        .table-responsive {
+            margin: 0 -16px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- 頁面標題區塊 -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="page-header">
+
+                <div class="page-header-left">
+                    <div class="header-content">   
+                        <div class="header-info animate-fade">
+                            <h1 class="text-gradient">我的證書</h1>
+                            <p class="lead text-muted">查看您已擁有的所有證書</p>
+                        </div> 
+                    </div>
+                </div>
+                
+                <div class="page-header-right">
+                    <!-- 搜尋課程名稱 -->
+                    <div class="col-md-12 mb-3">
+                        <div class="input-group" id="input-group-1">
+                            <span class="input-group-text"><i class="bi bi-search"></i></span>
+                            <input type="text" name="search" class="form-control" 
+                                   placeholder="搜尋課程名稱..." value="{{ search }}">
+                            <button type="submit" name="search_type" value="keyword" 
+                                    class="btn btn-outline-primary">
+                                <i class="bi bi-search"></i>
+                            </button>
+                        </div>
+                    </div>
+                
+                    <!-- 下面三個並排 -->
+                    <div class="d-flex gap-3">
+                        <!-- 開課單位 -->
+                        <div class="flex-fill">
+                            <label class="form-label">開課單位</label>
+                            <div class="input-group" id="input-group-2">
+                                <span class="input-group-text"><i class="bi bi-building"></i></span>
+                                <select name="department_id" class="form-select" onchange="this.form.submit()">
+                                    <option value="">所有單位</option>
+                                    {% for dept in departments %}
+                                        <option value="{{ dept.department_id }}" 
+                                                {% if department_id == dept.department_id %}selected{% endif %}>
+                                            {{ dept.full_name }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                
+                        <!-- 開課時間搜尋 -->
+                        <div class="flex-fill">
+                            <label class="form-label">發證時間</label>
+                            <div class="input-group" id="input-group-3">
+                                <input type="text" class="form-control date-picker" name="issue_date"
+                                       placeholder="發證日期" value="{{ issue_date }}">
+                                <button type="submit" name="search_type" value="certificate" 
+                                        class="btn btn-outline-primary">
+                                    <i class="bi bi-search"></i>
+                                </button>
+                            </div>
+                        </div>
+                
+                        <!-- 重置按鈕 -->
+                        <div class="d-flex align-items-end" id="btn-reset">
+                            <a href="{{ url_for('certificate.mycertificate') }}" class="btn btn-secondary ">
+                                <i class="bi bi-arrow-counterclockwise me-1"></i>重置
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+  
+    <!-- 在搜尋區塊和課程列表之間加入頁籤 -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+            </div>
+        </div>
+    </div>
+    <!-- 課程列表 -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>
+                                        <a href="#" onclick="updateSort('course_number')" class="text-dark text-decoration-none">
+                                            課程編號
+                                            <i class="bi bi-sort-{% if sort_by == 'course_number' %}{% if order == 'asc' %}down{% else %}up{% endif %}{% else %}down{% endif %}"></i>
+                                        </a>
+                                    </th>
+                                    <th>
+                                        <a href="#" onclick="updateSort('title')" class="text-dark text-decoration-none">
+                                            課程名稱
+                                            <i class="bi bi-sort-{% if sort_by == 'title' %}{% if order == 'asc' %}down{% else %}up{% endif %}{% else %}down{% endif %}"></i>
+                                        </a>
+                                    </th>
+                                    <th class="text-center">開課單位</th>
+                                    <th class="text-center">時數</th>
+                                    <th class="text-center">證號</th>
+                                    <th class="text-center">
+                                        <a href="#" onclick="updateSort('issue_date')" class="text-dark text-decoration-none">
+                                            發證時間
+                                            <i class="bi bi-sort-{% if sort_by == 'issue_date' %}{% if order == 'asc' %}down{% else %}up{% endif %}{% else %}down{% endif %}"></i>
+                                        </a>
+                                    </th>
+                                    <th class="text-center">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for certificate in certification %}
+                                <tr>
+                                    <td>{{ certificate.course_number }}</td>
+                                    <td>{{ certificate.course.title }}</td>
+                                    <td class="text-center">{{ certificate.course.department.full_name }}</td>
+                                    <td>{{ certificate.course.hours }}</td>
+                                    <td>{{ certificate.certification_code }}</td>
+                                    <td class="text-center">
+                                        {{ certificate.issue_date.strftime('%Y/%m/%d') }} 
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="btn-group">
+                                            <a href="/download/{{ certificate.course_number }}"
+                                               class="btn btn-outline-success btn-sm">
+                                                <i class="bi bi-eye me-1"></i>檢視
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 分頁控制 -->
+    {% if pagination.pages > 1 %}
+    <div class="row mt-4">
+        <div class="col-12 d-flex justify-content-center">
+            <nav aria-label="Page navigation">
+                <ul class="pagination">
+                    {% for page in pagination.iter_pages() %}
+                        {% if page %}
+                            <li class="page-item {% if page == pagination.page %}active{% endif %}">
+                                <a class="page-link" href="{{ url_for('certificate.mycertificate', 
+                                    page=page, 
+                                    search=search,
+                                    sort=sort_by,
+                                    order=order,
+                                    issue_date=issue_date,
+                                    search_type=search_type
+                                ) }}">{{ page }}</a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled"><span class="page-link">...</span></li>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+            </nav>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/zh-tw.js"></script>
+<script>
+    flatpickr(".date-picker", {
+        locale: "zh_tw",
+        dateFormat: "Y-m-d",
+        allowInput: true
+    });
+
+    function updateSort(column) {
+        const params = new URLSearchParams(window.location.search);
+        const currentSort = params.get('sort');
+        const currentOrder = params.get('order') || 'asc';
+        
+        if (currentSort === column) {
+            params.set('order', currentOrder === 'asc' ? 'desc' : 'asc');
+        } else {
+            params.set('sort', column);
+            params.set('order', 'asc');
+        }
+        
+        params.set('page', '1');
+        window.location.search = params.toString();
+    }
+</script>
+{% endblock %}
+
+{{ super() }}
+{% endblock %}

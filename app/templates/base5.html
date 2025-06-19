@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}教師研習區塊練證書存證系統{% endblock %}</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    
+    <!-- Favicon -->
+    <link rel="icon" href="{{ url_for('static', filename='logo/logo.svg') }}" sizes="16x16">
+
+    <link href="{{ url_for('static', filename='styles.css') }}" rel="stylesheet">
+  
+    <!-- Custom CSS -->
+    <style>
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        main {
+            flex: 1;
+        }
+       
+    
+    </style>
+  
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body>
+    <!--導覽列-->
+
+    <nav class="navbar navbar-expand-sm" style="background-color: #ffffff;">
+        <div class="container-fluid border-bottom pt-2 p-2 fw-bolder" style="font-size: 110%;">
+            <!-- Logo -->
+            <a class="navbar-brand" href="{{ url_for('main.index') }}">
+                <img src="{{ url_for('static', filename='logo/logo.svg') }}" alt="Logo" width="30" height="30">
+            </a>
+    
+            <!-- 用戶選單 -->
+            <div class="d-flex order-sm-last">
+                {% if current_user.is_authenticated %}
+                    <div class="dropdown position-static position-sm-relative">
+                        <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle nav-link" 
+                           data-bs-toggle="dropdown"
+                           style="color: #248e3c;">
+                            <span>{{ current_user.full_name }}</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-sm-end w-100 w-sm-auto">
+                            <li>
+                                <a class="dropdown-item text-center text-sm-start" href="{{ url_for('user.profile') }}">
+                                    <i class="bi bi-person"></i> 個人資料
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item text-center text-sm-start text-danger" href="{{ url_for('auth.logout') }}">
+                                    <i class="bi bi-box-arrow-right"></i> 登出
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                {% else %}
+                    <a href="{{ url_for('auth.login') }}" 
+                       class="btn btn-outline-success rounded-pill">登入</a>
+                {% endif %}
+            </div>
+    
+            <!-- 漢堡選單按鈕 -->
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+    
+            <!-- 可摺疊的導覽列內容 -->
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav w-100">
+                    <li class="nav-item">
+                        <a class="nav-link ps-sm-2 pe-sm-2 ps-0 {% if request.endpoint == 'main.index' %}active{% endif %}" 
+                           href="{{ url_for('main.index') }}">首頁</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link ps-sm-2 pe-sm-2 ps-0 {% if request.endpoint == 'main.verify' %}active{% endif %}" 
+                           href="{{ url_for('main.verify') }}">證書驗證</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle ps-sm-2 pe-sm-2 ps-0" href="#" role="button" data-bs-toggle="dropdown">
+                            Dropdown
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#">Action</a></li>
+                            <li><a class="dropdown-item" href="#">Another action</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#">Something else here</a></li>
+                        </ul>
+                    </li>
+
+                    {% if current_user.is_authenticated %}
+                    {% if current_user.role.name == 'user' %}
+                        <li class="nav-item">
+                            <a class="nav-link ps-sm-2 pe-sm-2 ps-0 {% if request.endpoint == 'certificate.my_certificates' %}active{% endif %}" 
+                            href="{{ url_for('certificate.mycertificate') }}">我的證書</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link ps-sm-2 pe-sm-2 ps-0 {% if request.endpoint == 'courses.mycourses' %}active{% endif %}" 
+                                href="{{ url_for('courses.mycourses') }}">我的課程</a>
+                        </li>
+                    {% elif current_user.role.name == 'agency' %}
+                        <li class="nav-item">
+                            <a class="nav-link ps-sm-2 pe-sm-2 ps-0 {% if request.endpoint == 'certificate.manage' %}active{% endif %}" 
+                            href="{{ url_for('certificate.cermanagement') }}">證書管理</a>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link ps-sm-2 pe-sm-2 ps-0 {% if request.endpoint == 'courses.manage' %}active{% endif %}" href="{{ url_for('courses.course_list') }}"  role="button"   data-bs-toggle="dropdown" >
+                                活動管理
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li class="dropdown-item">
+                                    <a class="dropdown-item"
+                                    href="{{ url_for('courses.manage_courses') }}">活動管理</a>
+                                </li>
+                                <li class="dropdown-item">
+                                    <a class="dropdown-item"
+                                    href="{{ url_for('courses.create_course') }}">建立活動</a>
+                                </li>
+                            </ul>
+                        </li>
+                    {% endif %}
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 閃現消息 
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show mb-0">
+                    <div class="container">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    -->
+
+    <!-- 主要內容 -->
+    <main class="py-4">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- 頁腳 -->
+    <footer class="footer mt-auto py-3 bg-light border-top">
+        <div class="container d-flex justify-content-center align-items-center">
+            <span class="text-muted">
+                © 2024 教師研習區塊練證書存證系統. All rights reserved.
+            </span>
+        </div>
+    </footer>
+
+    <!-- Bootstrap 5 Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- 額外的 JavaScript -->
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
