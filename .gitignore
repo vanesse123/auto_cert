@@ -1,0 +1,7 @@
+.venv
+tests
+node_modules
+flask.log
+package-lock.json
+package.json
+wget-log
