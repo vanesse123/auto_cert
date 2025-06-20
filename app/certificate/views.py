@@ -387,7 +387,10 @@ def download_pdf(course_number):
         else:
             print("Error in PDF generation, but no stderr output:", e)  # 输出错误
 
-
+    if not os.path.exists(cert_path):
+        print("PDF 檔案未成功產生，無法下載。")
+        abort(500, description="PDF 檔案未成功產生。")
+        
     # 读取PDF文件并返回给用户
     return_data = io.BytesIO()
     with open(cert_path, 'rb') as fo:
@@ -395,7 +398,7 @@ def download_pdf(course_number):
     return_data.seek(0)
 
     # 删除生成的PDF文件
-    os.remove(cert_path)
+    # os.remove(cert_path)
 
     # 发送文件给用户
     return send_file(return_data, as_attachment=True, mimetype='application/pdf',
